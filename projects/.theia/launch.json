@@ -1,0 +1,46 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "application",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "application",
+                "resourceId": "/application"
+            },
+            "debuggerSettings": {
+                "targetConfigs/MSPM0C1104.ccxml": {
+                    "Texas Instruments XDS110 USB Debug Probe/CORTEX_M0P": {
+                        "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues/>\n"
+                    }
+                }
+            }
+        },
+        {
+            "name": "bootloader",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "bootloader",
+                "resourceId": "/bootloader"
+            },
+            "debuggerSettings": {
+                "targetConfigs/MSPM0C1104.ccxml": {
+                    "Texas Instruments XDS110 USB Debug Probe/CORTEX_M0P": {
+                        "data": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<PropertyValues/>\n"
+                    }
+                }
+            }
+        },
+        {
+            "name": "uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang",
+            "type": "ccs-debug",
+            "request": "launch",
+            "projectInfo": {
+                "name": "uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang",
+                "resourceId": "/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/uart_echo_interrupts_standby.c"
+            }
+        }
+    ]
+}

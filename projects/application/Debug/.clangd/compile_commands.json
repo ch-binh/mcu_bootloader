@@ -1,0 +1,17 @@
+[
+   {
+      "directory" : "D:/PersonalProjects/mspm0_bootloader/projects/application/Debug",
+      "command"   : "clang++ -D__MSPM0C1104__ -I\"D:/PersonalProjects/mspm0_bootloader/projects/application\" -I\"D:/PersonalProjects/mspm0_bootloader/projects/application/Debug\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source/third_party/CMSIS/Core/Include\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/newlib-nano\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/arm-none-eabi\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/backward\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include-fixed\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\"",
+      "file"      : "D:/PersonalProjects/mspm0_bootloader/projects/application/src/application.c"
+   },
+   {
+      "directory" : "D:/PersonalProjects/mspm0_bootloader/projects/application/Debug",
+      "command"   : "clang++ -D__MSPM0C1104__ -I\"D:/PersonalProjects/mspm0_bootloader/projects/application\" -I\"D:/PersonalProjects/mspm0_bootloader/projects/application/Debug\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source/third_party/CMSIS/Core/Include\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/newlib-nano\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/arm-none-eabi\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/backward\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include-fixed\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\"",
+      "file"      : "D:/PersonalProjects/mspm0_bootloader/projects/application/Debug/ti_msp_dl_config.c"
+   },
+   {
+      "directory" : "D:/PersonalProjects/mspm0_bootloader/projects/application/Debug",
+      "command"   : "clang++ -D__MSPM0C1104__ -I\"D:/PersonalProjects/mspm0_bootloader/projects/application\" -I\"D:/PersonalProjects/mspm0_bootloader/projects/application/Debug\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source/third_party/CMSIS/Core/Include\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/newlib-nano\" -I\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/arm-none-eabi\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include/c++/9.2.1/backward\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/lib/gcc/arm-none-eabi/9.2.1/include-fixed\" -isystem\"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/include\"",
+      "file"      : "D:/PersonalProjects/mspm0_bootloader/projects/application/startup_mspm0c110x_gcc.c"
+   }
+]

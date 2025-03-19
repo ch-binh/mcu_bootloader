@@ -1,0 +1,10 @@
+"./ti_msp_dl_config.o"
+"./startup_mspm0c110x_gcc.o"
+"./src/bootloader.o"
+"./src/hal_bld.o"
+"./src/hal_gpio.o"
+-Wl,-T"../device_linker.lds"
+-Wl,-Tdevice.lds.genlibs
+-lgcc
+-lc
+-lm
