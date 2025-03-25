@@ -11,10 +11,15 @@ c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp
 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
                               ./startup_mspm0c110x_gcc.o (__libc_init_array)
 
+Allocating common symbols
+Common symbol       size              file
+
+uart_rx_buf         0x80              ./src/hal_uart.o
+
 Discarded input sections
 
- .text.hal_bld_go_to_main_app
-                0x00000000        0x8 ./src/hal_bld.o
+ .text.hal_uart_write
+                0x00000000        0x8 ./src/hal_uart.o
  .text.DL_UART_getClockConfig
                 0x00000000       0x14 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
  .text.DL_UART_configBaudRate
@@ -59,6 +64,8 @@ LOAD ./startup_mspm0c110x_gcc.o
 LOAD ./src/bootloader.o
 LOAD ./src/hal_bld.o
 LOAD ./src/hal_gpio.o
+LOAD ./src/hal_uart.o
+LOAD ./utils/checksum.o
                 0x00000000                _Min_Heap_Size = 0x0
                 0x00000080                _Min_Stack_Size = 0x80
                 0x00000000                PROVIDE (_intvecs_base_address = DEFINED (_intvecs_base_address)?_intvecs_base_address:0x0)
@@ -72,7 +79,7 @@ LOAD ./src/hal_gpio.o
 .vtable
  *(.vtable)
 
-.text           0x000000c0      0x440
+.text           0x000000c0      0x560
  CREATE_OBJECT_SYMBOLS
  *(.text)
  .text          0x000000c0        0x0 ./ti_msp_dl_config.o
@@ -80,6 +87,8 @@ LOAD ./src/hal_gpio.o
  .text          0x000000c0        0x0 ./src/bootloader.o
  .text          0x000000c0        0x0 ./src/hal_bld.o
  .text          0x000000c0        0x0 ./src/hal_gpio.o
+ .text          0x000000c0        0x0 ./src/hal_uart.o
+ .text          0x000000c0        0x0 ./utils/checksum.o
  .text          0x000000c0        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
  .text          0x000000c0        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
  .text          0x000000c0      0x114 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
@@ -132,107 +141,121 @@ LOAD ./src/hal_gpio.o
                 0x00000394                initStub
                 0x00000394                _init
  .text.startup.main
-                0x00000398       0x44 ./src/bootloader.o
+                0x00000398       0xa0 ./src/bootloader.o
                 0x00000398                main
- .text.UART0_IRQHandler
-                0x000003dc       0x44 ./src/bootloader.o
-                0x000003dc                UART0_IRQHandler
  .text.hal_bld_verify_app_mem
-                0x00000420       0x30 ./src/hal_bld.o
-                0x00000420                hal_bld_verify_app_mem
+                0x00000438       0x30 ./src/hal_bld.o
+                0x00000438                hal_bld_verify_app_mem
+ .text.hal_bld_go_to_main_app
+                0x00000468        0x8 ./src/hal_bld.o
+                0x00000468                hal_bld_go_to_main_app
+ .text.hal_uart_en_irq
+                0x00000470       0x14 ./src/hal_uart.o
+                0x00000470                hal_uart_en_irq
+ .text.hal_uart_burst_write
+                0x00000484       0x50 ./src/hal_uart.o
+                0x00000484                hal_uart_burst_write
+ .text.UART0_IRQHandler
+                0x000004d4       0x4c ./src/hal_uart.o
+                0x000004d4                UART0_IRQHandler
+ .text.hal_uart_read_cmd
+                0x00000520       0x34 ./src/hal_uart.o
+                0x00000520                hal_uart_read_cmd
+ .text.calc_checksum
+                0x00000554       0x20 ./utils/checksum.o
+                0x00000554                calc_checksum
  .text.DL_Common_delayCycles
-                0x00000450        0xc C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
-                0x00000450                DL_Common_delayCycles
+                0x00000574        0xc C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                0x00000574                DL_Common_delayCycles
  .text.DL_UART_init
-                0x0000045c       0x48 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
-                0x0000045c                DL_UART_init
+                0x00000580       0x48 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x00000580                DL_UART_init
  .text.DL_UART_setClockConfig
-                0x000004a4       0x14 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
-                0x000004a4                DL_UART_setClockConfig
+                0x000005c8       0x14 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x000005c8                DL_UART_setClockConfig
  .text.__libc_init_array
-                0x000004b8       0x44 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
-                0x000004b8                __libc_init_array
-                0x00000500                . = ALIGN (0x8)
- *fill*         0x000004fc        0x4 
+                0x000005dc       0x44 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                0x000005dc                __libc_init_array
+                0x00000620                . = ALIGN (0x8)
  *(.ctors)
-                0x00000500                . = ALIGN (0x8)
+                0x00000620                . = ALIGN (0x8)
  *(.dtors)
-                0x00000500                . = ALIGN (0x8)
+                0x00000620                . = ALIGN (0x8)
  *(.init)
-                0x00000500                . = ALIGN (0x8)
+                0x00000620                . = ALIGN (0x8)
  *(.fini*)
-                0x00000500                . = ALIGN (0x8)
+                0x00000620                . = ALIGN (0x8)
 
-.glue_7         0x00000500        0x0
- .glue_7        0x00000500        0x0 linker stubs
+.glue_7         0x00000620        0x0
+ .glue_7        0x00000620        0x0 linker stubs
 
-.glue_7t        0x00000500        0x0
- .glue_7t       0x00000500        0x0 linker stubs
+.glue_7t        0x00000620        0x0
+ .glue_7t       0x00000620        0x0 linker stubs
 
-.vfp11_veneer   0x00000500        0x0
- .vfp11_veneer  0x00000500        0x0 linker stubs
+.vfp11_veneer   0x00000620        0x0
+ .vfp11_veneer  0x00000620        0x0 linker stubs
 
-.v4_bx          0x00000500        0x0
- .v4_bx         0x00000500        0x0 linker stubs
+.v4_bx          0x00000620        0x0
+ .v4_bx         0x00000620        0x0 linker stubs
 
-.iplt           0x00000500        0x0
- .iplt          0x00000500        0x0 ./ti_msp_dl_config.o
+.iplt           0x00000620        0x0
+ .iplt          0x00000620        0x0 ./ti_msp_dl_config.o
 
-.ramfunc        0x20000000        0x0 load address 0x00000500
-                0x00000500                __ramfunct_load__ = LOADADDR (.ramfunc)
+.ramfunc        0x20000000        0x0 load address 0x00000620
+                0x00000620                __ramfunct_load__ = LOADADDR (.ramfunc)
                 0x20000000                __ramfunct_start__ = .
  *(.ramfunc)
                 0x20000000                . = ALIGN (0x8)
                 0x20000000                __ramfunct_end__ = .
 
-.rodata         0x00000500       0x10
+.rodata         0x00000620       0x10
  *(.rodata)
-                0x00000500                . = ALIGN (0x8)
+                0x00000620                . = ALIGN (0x8)
  *(.rodata.*)
  .rodata.gUART_0ClockConfig
-                0x00000500        0x2 ./ti_msp_dl_config.o
- *fill*         0x00000502        0x2 
+                0x00000620        0x2 ./ti_msp_dl_config.o
+ *fill*         0x00000622        0x2 
  .rodata.gUART_0Config
-                0x00000504        0xa ./ti_msp_dl_config.o
-                0x00000510                . = ALIGN (0x8)
- *fill*         0x0000050e        0x2 
+                0x00000624        0xa ./ti_msp_dl_config.o
+                0x00000630                . = ALIGN (0x8)
+ *fill*         0x0000062e        0x2 
 
-.rel.dyn        0x00000510        0x0
- .rel.iplt      0x00000510        0x0 ./ti_msp_dl_config.o
+.rel.dyn        0x00000630        0x0
+ .rel.iplt      0x00000630        0x0 ./ti_msp_dl_config.o
 
-.preinit_array  0x00000510        0x0
-                0x00000510                PROVIDE (__preinit_array_start = .)
+.preinit_array  0x00000630        0x0
+                0x00000630                PROVIDE (__preinit_array_start = .)
  *(.preinit_array*)
-                0x00000510                PROVIDE (__preinit_array_end = .)
+                0x00000630                PROVIDE (__preinit_array_end = .)
 
-.init_array     0x00000510        0x0
-                0x00000510                . = ALIGN (0x8)
-                0x00000510                PROVIDE (__init_array_start = .)
+.init_array     0x00000630        0x0
+                0x00000630                . = ALIGN (0x8)
+                0x00000630                PROVIDE (__init_array_start = .)
  *(SORT_BY_NAME(.init_array.*))
  *(.init_array*)
-                0x00000510                PROVIDE (__init_array_end = .)
+                0x00000630                PROVIDE (__init_array_end = .)
 
-.fini_array     0x00000510        0x0
-                0x00000510                . = ALIGN (0x8)
+.fini_array     0x00000630        0x0
+                0x00000630                . = ALIGN (0x8)
                 [!provide]                PROVIDE (__fini_array_start = .)
  *(SORT_BY_NAME(.fini_array.*))
  *(.fini_array*)
                 [!provide]                PROVIDE (__fini_array_end = .)
-                0x00000510                . = ALIGN (0x8)
+                0x00000630                . = ALIGN (0x8)
 
-.ARM.exidx      0x00000510        0x0
-                0x00000510                __exidx_start = .
+.ARM.exidx      0x00000630        0x0
+                0x00000630                __exidx_start = .
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x00000510                __exidx_end = .
+                0x00000630                __exidx_end = .
 
-.ARM.extab      0x00000510        0x0
-                0x00000510                . = ALIGN (0x8)
+.ARM.extab      0x00000630        0x0
+                0x00000630                . = ALIGN (0x8)
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x00000510                . = ALIGN (0x8)
-                0x00000510                __etext = .
+                0x00000630                . = ALIGN (0x8)
+                0x00000630                __etext = .
 
-.data           0x20000000        0x0 load address 0x00000510
-                0x00000510                __data_load__ = LOADADDR (.data)
+.data           0x20000000        0x0 load address 0x00000630
+                0x00000630                __data_load__ = LOADADDR (.data)
                 0x20000000                __data_start__ = .
  *(.data)
  .data          0x20000000        0x0 ./ti_msp_dl_config.o
@@ -240,6 +263,8 @@ LOAD ./src/hal_gpio.o
  .data          0x20000000        0x0 ./src/bootloader.o
  .data          0x20000000        0x0 ./src/hal_bld.o
  .data          0x20000000        0x0 ./src/hal_gpio.o
+ .data          0x20000000        0x0 ./src/hal_uart.o
+ .data          0x20000000        0x0 ./utils/checksum.o
  .data          0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
  .data          0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
  .data          0x20000000        0x0 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
@@ -249,10 +274,10 @@ LOAD ./src/hal_gpio.o
                 0x20000000                . = ALIGN (0x8)
                 0x20000000                __data_end__ = .
 
-.igot.plt       0x20000000        0x0 load address 0x00000510
+.igot.plt       0x20000000        0x0 load address 0x00000630
  .igot.plt      0x20000000        0x0 ./ti_msp_dl_config.o
 
-.bss            0x20000000        0x8
+.bss            0x20000000       0x88
                 0x20000000                __bss_start__ = .
  *(.shbss)
  *(.bss)
@@ -261,35 +286,45 @@ LOAD ./src/hal_gpio.o
  .bss           0x20000000        0x0 ./src/bootloader.o
  .bss           0x20000000        0x0 ./src/hal_bld.o
  .bss           0x20000000        0x0 ./src/hal_gpio.o
+ .bss           0x20000000        0x0 ./src/hal_uart.o
+ .bss           0x20000000        0x0 ./utils/checksum.o
  .bss           0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
  .bss           0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
  .bss           0x20000000        0x0 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
  .bss           0x20000000        0x0 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
  .bss           0x20000000        0x0 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
  *(.bss.*)
- .bss.gEchoData
-                0x20000000        0x1 ./src/bootloader.o
-                0x20000000                gEchoData
+ .bss.host_cmd  0x20000000        0x1 ./src/bootloader.o
+                0x20000000                host_cmd
+ .bss.sys_state
+                0x20000001        0x1 ./src/bootloader.o
+                0x20000001                sys_state
+ .bss.uart_rx_ctr
+                0x20000002        0x1 ./src/hal_uart.o
+                0x20000002                uart_rx_ctr
  *(COMMON)
-                0x20000008                . = ALIGN (0x8)
- *fill*         0x20000001        0x7 
-                0x20000008                __bss_end__ = .
+ *fill*         0x20000003        0x1 
+ COMMON         0x20000004       0x80 ./src/hal_uart.o
+                0x20000004                uart_rx_buf
+                0x20000088                . = ALIGN (0x8)
+ *fill*         0x20000084        0x4 
+                0x20000088                __bss_end__ = .
 
-.noinit         0x20000008        0x0
+.noinit         0x20000088        0x0
  *(*.noinit*)
-                0x20000008                . = ALIGN (0x8)
+                0x20000088                . = ALIGN (0x8)
 
-.heap           0x20000008        0x0
-                0x20000008                __heap_start__ = .
-                0x20000008                end = __heap_start__
-                0x20000008                _end = end
-                0x20000008                __end = end
+.heap           0x20000088        0x0
+                0x20000088                __heap_start__ = .
+                0x20000088                end = __heap_start__
+                0x20000088                _end = end
+                0x20000088                __end = end
  *(.heap)
-                0x20000008                __heap_end__ = .
-                0x20000008                __HeapLimit = __heap_end__
+                0x20000088                __heap_end__ = .
+                0x20000088                __HeapLimit = __heap_end__
 
-.stack          0x20000008        0x0
-                0x20000008                _stack = .
+.stack          0x20000088        0x0
+                0x20000088                _stack = .
  *(.stack)
 
 .BCRConfig
@@ -312,74 +347,92 @@ LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libnosys.a
 END GROUP
 OUTPUT(bootloader.out elf32-littlearm)
 
-.debug_info     0x00000000    0x15ae9
+.debug_info     0x00000000    0x1a88b
  .debug_info    0x00000000     0x4c34 ./ti_msp_dl_config.o
  .debug_info    0x00004c34      0x1bc ./startup_mspm0c110x_gcc.o
- .debug_info    0x00004df0     0x46f0 ./src/bootloader.o
- .debug_info    0x000094e0     0x42b5 ./src/hal_bld.o
- .debug_info    0x0000d795     0x3952 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_info    0x000110e7     0x4a02 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_info    0x00004df0     0x43bd ./src/bootloader.o
+ .debug_info    0x000091ad     0x42b5 ./src/hal_bld.o
+ .debug_info    0x0000d462     0x4735 ./src/hal_uart.o
+ .debug_info    0x00011b97      0x9a0 ./utils/checksum.o
+ .debug_info    0x00012537     0x3952 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_info    0x00015e89     0x4a02 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_abbrev   0x00000000      0xe48
+.debug_abbrev   0x00000000     0x12fc
  .debug_abbrev  0x00000000      0x353 ./ti_msp_dl_config.o
  .debug_abbrev  0x00000353       0xe7 ./startup_mspm0c110x_gcc.o
- .debug_abbrev  0x0000043a      0x333 ./src/bootloader.o
- .debug_abbrev  0x0000076d      0x235 ./src/hal_bld.o
- .debug_abbrev  0x000009a2      0x126 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_abbrev  0x00000ac8      0x380 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_abbrev  0x0000043a      0x2aa ./src/bootloader.o
+ .debug_abbrev  0x000006e4      0x235 ./src/hal_bld.o
+ .debug_abbrev  0x00000919      0x373 ./src/hal_uart.o
+ .debug_abbrev  0x00000c8c      0x1ca ./utils/checksum.o
+ .debug_abbrev  0x00000e56      0x126 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_abbrev  0x00000f7c      0x380 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_loc      0x00000000      0xb24
+.debug_loc      0x00000000      0xc74
  .debug_loc     0x00000000       0x13 ./ti_msp_dl_config.o
  .debug_loc     0x00000013       0x13 ./startup_mspm0c110x_gcc.o
  .debug_loc     0x00000026       0x13 ./src/bootloader.o
  .debug_loc     0x00000039       0x3a ./src/hal_bld.o
- .debug_loc     0x00000073      0xab1 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_loc     0x00000073      0x10c ./src/hal_uart.o
+ .debug_loc     0x0000017f       0x44 ./utils/checksum.o
+ .debug_loc     0x000001c3      0xab1 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_aranges  0x00000000      0x178
+.debug_aranges  0x00000000      0x1d0
  .debug_aranges
                 0x00000000       0x40 ./ti_msp_dl_config.o
  .debug_aranges
                 0x00000040       0x30 ./startup_mspm0c110x_gcc.o
  .debug_aranges
-                0x00000070       0x28 ./src/bootloader.o
+                0x00000070       0x20 ./src/bootloader.o
  .debug_aranges
-                0x00000098       0x28 ./src/hal_bld.o
+                0x00000090       0x28 ./src/hal_bld.o
  .debug_aranges
-                0x000000c0       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                0x000000b8       0x40 ./src/hal_uart.o
  .debug_aranges
-                0x000000e0       0x98 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x000000f8       0x20 ./utils/checksum.o
+ .debug_aranges
+                0x00000118       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_aranges
+                0x00000138       0x98 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_ranges   0x00000000      0x540
+.debug_ranges   0x00000000      0x610
  .debug_ranges  0x00000000      0x140 ./ti_msp_dl_config.o
  .debug_ranges  0x00000140       0x20 ./startup_mspm0c110x_gcc.o
- .debug_ranges  0x00000160       0x48 ./src/bootloader.o
- .debug_ranges  0x000001a8       0x18 ./src/hal_bld.o
- .debug_ranges  0x000001c0       0x10 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_ranges  0x000001d0      0x370 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_ranges  0x00000160       0x28 ./src/bootloader.o
+ .debug_ranges  0x00000188       0x18 ./src/hal_bld.o
+ .debug_ranges  0x000001a0       0xb8 ./src/hal_uart.o
+ .debug_ranges  0x00000258       0x38 ./utils/checksum.o
+ .debug_ranges  0x00000290       0x10 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_ranges  0x000002a0      0x370 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_line     0x00000000     0x2313
- .debug_line    0x00000000      0x6a7 ./ti_msp_dl_config.o
- .debug_line    0x000006a7      0x180 ./startup_mspm0c110x_gcc.o
- .debug_line    0x00000827      0x54b ./src/bootloader.o
- .debug_line    0x00000d72      0x3a7 ./src/hal_bld.o
- .debug_line    0x00001119        0x0 ./src/hal_gpio.o
- .debug_line    0x00001119      0x3b7 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_line    0x000014d0      0xe43 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+.debug_line     0x00000000     0x29dc
+ .debug_line    0x00000000      0x6a8 ./ti_msp_dl_config.o
+ .debug_line    0x000006a8      0x180 ./startup_mspm0c110x_gcc.o
+ .debug_line    0x00000828      0x48b ./src/bootloader.o
+ .debug_line    0x00000cb3      0x3a7 ./src/hal_bld.o
+ .debug_line    0x0000105a        0x0 ./src/hal_gpio.o
+ .debug_line    0x0000105a      0x60c ./src/hal_uart.o
+ .debug_line    0x00001666      0x17c ./utils/checksum.o
+ .debug_line    0x000017e2      0x3b7 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_line    0x00001b99      0xe43 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_str      0x00000000     0x2b9a
- .debug_str     0x00000000     0x1fa3 ./ti_msp_dl_config.o
+.debug_str      0x00000000     0x2cd3
+ .debug_str     0x00000000     0x1f9c ./ti_msp_dl_config.o
                                0x2088 (size before relaxing)
- .debug_str     0x00001fa3       0xf2 ./startup_mspm0c110x_gcc.o
+ .debug_str     0x00001f9c       0xf2 ./startup_mspm0c110x_gcc.o
                                 0x296 (size before relaxing)
- .debug_str     0x00002095      0x440 ./src/bootloader.o
-                               0x1a2e (size before relaxing)
- .debug_str     0x000024d5       0x72 ./src/hal_bld.o
+ .debug_str     0x0000208e      0x140 ./src/bootloader.o
+                               0x1717 (size before relaxing)
+ .debug_str     0x000021ce       0x72 ./src/hal_bld.o
                                0x1649 (size before relaxing)
- .debug_str     0x00002547       0x12 ./src/hal_gpio.o
+ .debug_str     0x00002240       0x12 ./src/hal_gpio.o
                                 0x11e (size before relaxing)
- .debug_str     0x00002559      0x1aa C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_str     0x00002252      0x415 ./src/hal_uart.o
+                               0x1a72 (size before relaxing)
+ .debug_str     0x00002667       0x2b ./utils/checksum.o
+                                0x5f0 (size before relaxing)
+ .debug_str     0x00002692      0x1aa C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
                                0x1232 (size before relaxing)
- .debug_str     0x00002703      0x497 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_str     0x0000283c      0x497 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
                                0x1ba8 (size before relaxing)
 
 .comment        0x00000000       0x79
@@ -389,6 +442,8 @@ OUTPUT(bootloader.out elf32-littlearm)
  .comment       0x00000079       0x7a ./src/bootloader.o
  .comment       0x00000079       0x7a ./src/hal_bld.o
  .comment       0x00000079       0x7a ./src/hal_gpio.o
+ .comment       0x00000079       0x7a ./src/hal_uart.o
+ .comment       0x00000079       0x7a ./utils/checksum.o
  .comment       0x00000079       0x7a C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
  .comment       0x00000079       0x7a C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
@@ -405,22 +460,28 @@ OUTPUT(bootloader.out elf32-littlearm)
  .ARM.attributes
                 0x000000ac       0x32 ./src/hal_gpio.o
  .ARM.attributes
-                0x000000de       0x2b C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                0x000000de       0x2b ./src/hal_uart.o
  .ARM.attributes
-                0x00000109       0x2b C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x00000109       0x2b ./utils/checksum.o
  .ARM.attributes
-                0x00000134       0x1e c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
+                0x00000134       0x2b C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
  .ARM.attributes
-                0x00000152       0x1e c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
+                0x0000015f       0x2b C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
  .ARM.attributes
-                0x00000170       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                0x0000018a       0x1e c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x000001a8       0x1e c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x000001c6       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
 
-.debug_frame    0x00000000      0x344
+.debug_frame    0x00000000      0x3f0
  .debug_frame   0x00000000       0x7c ./ti_msp_dl_config.o
  .debug_frame   0x0000007c       0x48 ./startup_mspm0c110x_gcc.o
  .debug_frame   0x000000c4       0x38 ./src/bootloader.o
  .debug_frame   0x000000fc       0x38 ./src/hal_bld.o
- .debug_frame   0x00000134       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_frame   0x00000154      0x1a4 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
- .debug_frame   0x000002f8       0x20 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
- .debug_frame   0x00000318       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+ .debug_frame   0x00000134       0x84 ./src/hal_uart.o
+ .debug_frame   0x000001b8       0x28 ./utils/checksum.o
+ .debug_frame   0x000001e0       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_frame   0x00000200      0x1a4 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_frame   0x000003a4       0x20 c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a(_udivsi3.o)
+ .debug_frame   0x000003c4       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)

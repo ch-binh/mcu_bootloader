@@ -101,18 +101,17 @@ class Res_cmd():
 
 class RqCmd():
     """
-    ontains the request commands
+    Contains the request commands
     """
-    RQ_DOWNLOAD = 0xF2
-    RQ_ERASE = 0xF3
-    RQ_CHECK_BLANKING = 0xF4
-    RQ_CHECK_CRC_MODE = 0xF5
-    RQ_SYSTEM_RESET = 0xF6
-    RQ_GET_BLD_VER = 0xF7
-    RQ_ENTER_BLD = 0xF8
-    RQ_EXIT_BLD = 0xF9
-    pass
-
+    RQ_NOP = 0x00
+    RQ_ERASE = 0x01
+    RQ_CHECK_BLANKING = 0x02
+    RQ_UPLOADING = 0x03
+    RQ_CHECK_CRC_MODE = 0x04
+    RQ_SYSTEM_RESET = 0x05
+    RQ_GET_BLD_VER = 0x06
+    RQ_ENTER_BLD = 0x07
+    RQ_EXIT_BLD = 0x08
 
 def dl_uart_init() -> serial.Serial:
     """Open the UART port."""

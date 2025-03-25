@@ -126,4 +126,5 @@ GEN_OPTS__QUOTED :=
 SUBDIRS := \
 . \
 src \
+utils \
 

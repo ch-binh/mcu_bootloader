@@ -1,6 +1,7 @@
 # FIXED
 
-src/bootloader.o: ../src/bootloader.c \
+src/hal_uart.o: ../src/hal_uart.c \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/memory_map.h \
  ti_msp_dl_config.h \
@@ -74,10 +75,9 @@ src/bootloader.o: ../src/bootloader.c \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_gpio.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
 
@@ -225,10 +225,4 @@ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h:
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h:
 
-D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:
-
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
-
-D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_gpio.h:
-
-D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:

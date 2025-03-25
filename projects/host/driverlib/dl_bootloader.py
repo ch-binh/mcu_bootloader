@@ -18,7 +18,7 @@ def dl_bld_get_version(uart_port, num_byte: int = 1) -> bytearray:
 
     time.sleep(0.01)
     try:
-        return uart_port.read(num_byte)
+        return uart_port.read(num_byte.in_waiting)
 
     except ValueError:
         print("catch value error")

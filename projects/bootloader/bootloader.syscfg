@@ -36,8 +36,8 @@ const Board = scripting.addModule("/ti/driverlib/Board", {}, false);
 SYSCTL.clockTreeEn = true;
 
 UART1.$name                    = "UART_0";
-UART1.enabledInterrupts        = ["RX"];
 UART1.targetBaudRate           = 115200;
+UART1.enabledInterrupts        = ["EOT_DONE","RX"];
 UART1.peripheral.rxPin.$assign = "PA26";
 UART1.peripheral.txPin.$assign = "PA27";
 UART1.txPinConfig.$name        = "ti_driverlib_gpio_GPIOPinGeneric0";

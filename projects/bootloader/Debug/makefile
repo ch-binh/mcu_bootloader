@@ -15,6 +15,8 @@ ORDERED_OBJS += \
 "./src/bootloader.o" \
 "./src/hal_bld.o" \
 "./src/hal_gpio.o" \
+"./src/hal_uart.o" \
+"./utils/checksum.o" \
 -Wl,-T"../device_linker.lds" \
 $(GEN_CMDS__FLAG) \
 -Wl,-Tdevice.lds.genlibs \
@@ -31,8 +33,10 @@ RMDIR := RMDIR /S/Q
 -include sources.mk
 -include subdir_vars.mk
 -include src/subdir_vars.mk
+-include utils/subdir_vars.mk
 -include subdir_rules.mk
 -include src/subdir_rules.mk
+-include utils/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -163,8 +167,8 @@ bootloader.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_gpio.o" 
-	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_gpio.d" 
+	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_gpio.o" "src\hal_uart.o" "utils\checksum.o" 
+	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_gpio.d" "src\hal_uart.d" "utils\checksum.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

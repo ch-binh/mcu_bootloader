@@ -127,6 +127,7 @@ SYSCONFIG_WEAK void SYSCFG_DL_UART_0_init(void)
 
     /* Configure Interrupts */
     DL_UART_Main_enableInterrupt(UART_0_INST,
+                                 DL_UART_MAIN_INTERRUPT_EOT_DONE |
                                  DL_UART_MAIN_INTERRUPT_RX);
 
 

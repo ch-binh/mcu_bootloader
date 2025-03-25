@@ -16,7 +16,7 @@ int hal_bld_verify_app_mem(uint32_t start_adr) {
       }
     }
   }
-  return 1;
+  return 0;
 }
 
 void hal_bld_go_to_main_app(uint32_t jump_addr) {

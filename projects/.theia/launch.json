@@ -32,15 +32,6 @@
                     }
                 }
             }
-        },
-        {
-            "name": "uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang",
-            "type": "ccs-debug",
-            "request": "launch",
-            "projectInfo": {
-                "name": "uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang",
-                "resourceId": "/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/uart_echo_interrupts_standby.c"
-            }
         }
     ]
 }

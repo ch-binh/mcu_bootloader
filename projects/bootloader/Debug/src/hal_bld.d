@@ -73,7 +73,8 @@ src/hal_bld.o: ../src/hal_bld.c \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_vref.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h \
- C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h
+ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:
 
@@ -220,3 +221,5 @@ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_wwdt.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_interrupt.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h:
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h:

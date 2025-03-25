@@ -3,6 +3,8 @@
 "./src/bootloader.o"
 "./src/hal_bld.o"
 "./src/hal_gpio.o"
+"./src/hal_uart.o"
+"./utils/checksum.o"
 -Wl,-T"../device_linker.lds"
 -Wl,-Tdevice.lds.genlibs
 -lgcc
