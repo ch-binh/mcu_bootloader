@@ -2,17 +2,16 @@
 
 #include "inc/bootloader.h"
 #include "inc/hal_bld.h"
+#include "inc/hal_flash.h"
 #include "inc/hal_gpio.h"
 #include "inc/hal_uart.h"
 
 volatile bld_state_e sys_state = BLD_IDLE;
 volatile bld_cmd_e host_cmd = CMD_NOP;
 
-extern uint8_t uart_rx_ctr; // rx buffer counter
-extern uint8_t uart_rx_buf[UART_RX_LEN_MAX];
-
-static void exe_cmd(void) {
+static void bld_exe_cmd(void) {
   switch (host_cmd) {
+
   case CMD_GET_BLD_VER: {
 
     uint8_t bld_ver[BLD_VER_LEN] = {BLD_VER_MAJOR, BLD_VER_RESERVE,
@@ -20,6 +19,28 @@ static void exe_cmd(void) {
 
     hal_uart_burst_write(UART_0_INST, bld_ver, BLD_VER_LEN);
   } break;
+
+  case CMD_BLANKING: {
+    uint8_t rx_buffer[UART_RX_LEN_MAX];
+    uint32_t addr = 0;
+    uint32_t size = 0;
+
+    hal_uart_fetch_rx_buf(rx_buffer, sizeof(rx_buffer));
+
+    for (int i = 0; i < 4; i++) {
+      addr |= rx_buffer[2 + i] << (24 - i * 8);
+      size |= rx_buffer[6 + i] << (24 - i * 8);
+    }
+
+    bool is_blank = hal_flash_check_blanking(addr, size);
+    hal_uart_burst_write(UART_0_INST, (uint8_t *)&is_blank, sizeof(is_blank));
+  } break;
+
+  case CMD_ERASE: {
+    while (1)
+      ;
+  } break;
+
   default:
     break;
   }
@@ -52,12 +73,14 @@ int main(void) {
     } break;
 
     case BLD_READ_CMD: {
-      host_cmd = hal_uart_read_cmd(uart_rx_buf, uart_rx_ctr);
-      sys_state = BLD_EXE_CMD;
+      host_cmd = hal_uart_read_cmd();
+      if (host_cmd != CMD_UNDEFINED) {
+        sys_state = BLD_EXE_CMD;
+      }
     } break;
 
     case BLD_EXE_CMD: {
-      exe_cmd();
+      bld_exe_cmd();
       sys_state = BLD_IDLE;
     } break;
 

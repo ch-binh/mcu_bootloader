@@ -1,8 +1,9 @@
 #ifndef BOOTLOADER_H
 #define BOOTLOADER_H
 
-#include "memory_map.h"
+
 #include "ti_msp_dl_config.h"
+#include "inc/sysmem_map.h"
 #include "utils/checksum.h"
 
 #define DELAY (12000000)

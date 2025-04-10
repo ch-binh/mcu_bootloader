@@ -2,6 +2,7 @@
 "./startup_mspm0c110x_gcc.o"
 "./src/bootloader.o"
 "./src/hal_bld.o"
+"./src/hal_flash.o"
 "./src/hal_gpio.o"
 "./src/hal_uart.o"
 "./utils/checksum.o"

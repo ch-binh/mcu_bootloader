@@ -14,6 +14,7 @@ ORDERED_OBJS += \
 "./startup_mspm0c110x_gcc.o" \
 "./src/bootloader.o" \
 "./src/hal_bld.o" \
+"./src/hal_flash.o" \
 "./src/hal_gpio.o" \
 "./src/hal_uart.o" \
 "./utils/checksum.o" \
@@ -153,7 +154,7 @@ all: $(OBJS) $(LDS_SRCS) $(GEN_CMDS)
 bootloader.out: $(OBJS) $(LDS_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: GNU Linker'
-	"C:/ti/gcc_arm_none_eabi_9_2_1/bin/arm-none-eabi-gcc-9.2.1.exe" @"device.opt"  -O2 -ffunction-sections -fdata-sections -g -gdwarf-3 -gstrict-dwarf -Wall -mthumb -mfloat-abi=soft -Wl,-Map,"bootloader.map" -nostartfiles -static -Wl,--gc-sections -L"C:/ti/mspm0_sdk_2_04_00_06/source" -L"D:/PersonalProjects/mspm0_bootloader/projects/bootloader" -L"D:/PersonalProjects/mspm0_bootloader/projects/bootloader/Debug/syscfg" -L"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp" -march=armv6-m -mthumb --specs=nosys.specs -o"bootloader.out" $(ORDERED_OBJS)
+	"C:/ti/gcc_arm_none_eabi_9_2_1/bin/arm-none-eabi-gcc-9.2.1.exe" @"device.opt"  -Og -ffunction-sections -fdata-sections -g -gdwarf-3 -gstrict-dwarf -Wall -mthumb -mfloat-abi=soft -Wl,-Map,"bootloader.map" -nostartfiles -static -Wl,--gc-sections -L"C:/ti/mspm0_sdk_2_04_00_06/source" -L"D:/PersonalProjects/mspm0_bootloader/projects/bootloader" -L"D:/PersonalProjects/mspm0_bootloader/projects/bootloader/Debug/syscfg" -L"C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp" -march=armv6-m -mthumb --specs=nosys.specs -o"bootloader.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
@@ -167,8 +168,8 @@ bootloader.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_gpio.o" "src\hal_uart.o" "utils\checksum.o" 
-	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_gpio.d" "src\hal_uart.d" "utils\checksum.d" 
+	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_flash.o" "src\hal_gpio.o" "src\hal_uart.o" "utils\checksum.o" 
+	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_flash.d" "src\hal_gpio.d" "src\hal_uart.d" "utils\checksum.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
