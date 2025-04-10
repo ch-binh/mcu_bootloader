@@ -1,11 +1,13 @@
-
 import sys
 import os
 import serial.tools.list_ports
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "utils")))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "common")))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "driverlib")))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "utils")))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "common")))
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "driverlib")))
 
 from driverlib.dl_uart import *
 from driverlib.dl_hex_file import *
@@ -14,6 +16,7 @@ from common.memory_map import *
 
 ### Global variable
 gUart = None
+
 
 class SystemInfo:
     com_ports = []
@@ -50,7 +53,6 @@ class SystemInfo:
 
         cls.target_com_port = cls.com_ports[idx].device
         print(f"\nSelect \"{cls.target_com_port}\"\n")
-        
 
     #============================Selecting Hex Files================================#
     @classmethod
@@ -89,18 +91,20 @@ class SystemInfo:
         print(f"\nSelect \"{cls.target_release_dir}/{cls.hex_files[idx]}\"\n")
 
 
-#============================Main================================#
+#===========================================================================
+#                                 MAIN
+#===========================================================================
 @staticmethod
 def set_sys_info() -> None:
     global gUart
     SystemInfo.scan_com_ports()
     SystemInfo.input_set_com_port()
     Uart.cfg_port(SystemInfo.target_com_port)
-    
+
     SystemInfo.scan_hex_files()
     SystemInfo.input_set_hex_file()
     Uart.cfg_port(SystemInfo.target_hex_file_addr)
-    
+
     gUart = dl_uart_init()
 
 
@@ -109,21 +113,16 @@ def main() -> None:
     print("=" * 40)
     print("2. Select commands")
     print("-" * 40 + "\n")
-    
-    
 
     cmd_options = {
         "1":
-        lambda:
-        (print("Flash erase success")
-         if send_erase_cmd(UART_PORT, FLASH_APP_START, FLASH_APP_SIZE) else
-         (print("Fail to erase"), exit())),
+        lambda: cmd_erase(gUart),
         "2":
-        lambda: dl_uart_check_blanking(0x0000, 0x400),
+        lambda: cmd_check_blanking_cb(gUart),
         "3":
         lambda: dl_uart_write(UART_PORT, RqCmd.RQ_SYSTEM_RESET),
         "4":
-        lambda: print("Bootloader version is:", dl_bld_get_version(gUart)),
+        lambda: cmd_get_bld_version_cb(gUart),
         "5":
         lambda: read_enter_bld_response(UART_PORT)
         if send_enter_bld_cmd(UART_PORT) else None,
@@ -151,7 +150,34 @@ def main() -> None:
         exit()
 
 
+#===========================================================================
+#   COMMANDS FUCNTIONS
+#===========================================================================
+@staticmethod
+def cmd_erase(uart_port: serial. Serial):
+    addr = 0x1800
+    size = 0x400
+    dl_bld_erase(uart_port, addr, size)
+
+
+@staticmethod
+def cmd_check_blanking_cb(uart_port: serial. Serial):
+    addr = 0x1800
+    size = 0x400
+    print(f"Image from {addr} with size of {size}\
+        is {'clean' if dl_bld_blanking(uart_port, addr, size) else 'not blank'}")
+
+
+@staticmethod
+def cmd_get_bld_version_cb(uart_port: serial. Serial):
+    print("Bootloader version is:", dl_bld_get_version(uart_port))
+
+
+#===========================================================================
+#                                 MAIN
+#===========================================================================
+
 if __name__ == "__main__":
     set_sys_info()
-    while(1):
+    while (1):
         main()

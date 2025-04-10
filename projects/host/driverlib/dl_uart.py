@@ -1,8 +1,22 @@
-import time
 import serial
 import os
 
 from common.ret_no import ERRNO
+from utils.checksum import checksum_calc
+
+IMAGE_TAG = 0xD1B45E82
+IMAGE_START = 0x00002000
+IMAGE_SIZE = 0x0000068A
+IMAGE_CRC = 0x1C18B4D5
+IMAGE_JUMP_ADDR = 0x00002000
+
+RQ_KEY = 0x84AE9B23
+RES_KEY = 0x18E2B8AC
+
+NUMBER_OF_ATTEMPTS = 20  # number of resend attempt if respond returns fail
+DOWNLOADING_SPEED = 7500  # test successful with 5000, x2 -> 10000 just to be safe
+READ_RES_SPEED = 10000
+WAIT_FOR_RES = 50000  # make it large for flash downloading and verifying
 
 BUADRATE_LIST = [
     110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400,
@@ -46,37 +60,6 @@ class Uart:
         cls.file_addr = address
         return ERRNO.SUCCESS
 
-    ####### OPEN AND CLOSE PORT ######
-
-    @staticmethod
-    def send(uart_port: serial.Serial, data):
-        """Send data over UART."""
-        if isinstance(data, int):
-            uart_port.write(bytes([data]))
-        elif isinstance(data, str):
-            uart_port.write(data.encode())
-        else:
-            uart_port.write(bytes([data]))
-
-    @staticmethod
-    def read_resp(uart_port: serial.Serial):
-        """Read response from UART (implementation needed)."""
-        pass
-
-
-IMAGE_TAG = 0xD1B45E82
-IMAGE_START = 0x00002000
-IMAGE_SIZE = 0x0000068A
-IMAGE_CRC = 0x1C18B4D5
-IMAGE_JUMP_ADDR = 0x00002000
-
-RQ_KEY = 0x84AE9B23
-RES_KEY = 0x18E2B8AC
-
-NUMBER_OF_ATTEMPTS = 20  # number of resend attempt if respond returns fail
-DOWNLOADING_SPEED = 7500  # test successful with 5000, x2 -> 10000 just to be safe
-READ_RES_SPEED = 10000
-WAIT_FOR_RES = 50000  # make it large for flash downloading and verifying
 
 error_count = 0
 
@@ -113,6 +96,7 @@ class RqCmd():
     RQ_ENTER_BLD = 0x07
     RQ_EXIT_BLD = 0x08
 
+
 def dl_uart_init() -> serial.Serial:
     """Open the UART port."""
     uart_inst = None
@@ -125,7 +109,6 @@ def dl_uart_init() -> serial.Serial:
     else:
         print(f"Failed to open port {Uart.uart_port}.")
         return None
-
 
 
 def dl_uart_deinit(cls):
@@ -159,16 +142,6 @@ def dl_uart_write(uart_port: serial.Serial, data: list) -> None:
             uart_port.write(byte.encode())
         else:
             uart_port.write(bytes([byte]))
-        
-
-
-
-
-
-
-
-
-
 
 
 def is_sent_success(uart_port) -> bool:
@@ -289,169 +262,6 @@ def is_sent_success(uart_port) -> bool:
                     exit()
 
 
-def send_erase_cmd(uart_port, s_adr, size) -> bool:
-    """
-    Send erase command to MCU. Including starting address and size of memory to be erased.
-    First send blanking command, if returns dirty, erase command is sent. Otherwise, 
-    The erase command is dismissed.
-
-    Notes: Data sent including:
-        1 cmd byte
-        4 address bytes
-        4 memory size bytes
-        1 checksum byte
-
-    Args:
-        COM (object): The COM port object used for communication.
-        s_adr (int/str): Start address of the memory range that to be erased
-        size (int/str): Size of data to be erased
-
-    Returns:
-        bool: True if MCU is erased successfully, or memory is already clean. \
-            False if not getting erase successful response.
-    """
-
-    dl_uart_check_blanking(uart_port, s_adr, size)
-    # Read response
-    if is_sent_success(uart_port):
-        return True
-    else:
-        print("Wait for erasing FLASH\n")
-        dl_uart_write(uart_port, RqCmd.RQ_ERASE)
-
-        if type(s_adr) == str:
-            # send start address of memory
-            for i in range(4):
-                dl_uart_write(uart_port, int(s_adr[i * 2:i * 2 + 2], base=16))
-            # send size of memory range that want to be erased
-            for i in range(4):
-                dl_uart_write(uart_port, int(size[i * 2:i * 2 + 2], base=16))
-
-            data_str = s_adr + size
-            checksum = calculate_checksum_2byte(data_str)
-            dl_uart_write(uart_port, checksum)
-
-        elif type(s_adr) == int:
-            adr_list = [None] * 4
-            size_list = [None] * 4
-
-            # convert from int to int list
-            adr_list[0] = s_adr >> 24
-            adr_list[1] = s_adr >> 16 & 0xFF
-            adr_list[2] = s_adr >> 8 & 0xFF
-            adr_list[3] = s_adr & 0xFF
-
-            size_list[0] = size >> 24
-            size_list[1] = size >> 16 & 0xFF
-            size_list[2] = size >> 8 & 0xFF
-            size_list[3] = size & 0xFF
-
-            # send byte element in list
-            for e in adr_list:
-                dl_uart_write(uart_port, e)
-            for e in size_list:
-                dl_uart_write(uart_port, e)
-
-            # calculate checksum
-            data_str = []
-            for i in range(4):
-                data_str.append(str(adr_list[i]))
-            for i in range(4):
-                data_str.append(str(size_list[i]))
-
-            # send checksum
-            checksum = calculate_checksum_1byte(data_str)
-            dl_uart_write(uart_port, checksum)
-
-        if is_sent_success(uart_port):
-            return True
-        else:  # False = checksum fail
-            send_erase_cmd(uart_port, s_adr, size)
-            # Wait until the device completes the erase operation
-            counter = 0
-            while (True):
-                if (is_sent_success(uart_port)):
-                    return True
-                else:
-                    print(f"Erased failed, resend. Try: {counter}")
-                    send_erase_cmd(uart_port, s_adr, size)
-                    counter += 1
-                    if counter == 3:
-                        return False
-
-
-def dl_uart_check_blanking(s_adr, size):
-    """
-    Check blanking of memory range based on starting address and memory length
-
-    Notes: Data sent including:
-        1 cmd byte
-        4 address bytes
-        4 memory size bytes
-        1 checksum byte
-
-    Args:
-        COM (object): The COM port object used for communication.
-        s_adr (int/str): Start address of the memory range that to be checked
-        size (int/str): Size of data to be checked
-
-    Returns:
-        bool: True if memory range is clean. False if it is dirty.
-    """
-    print("====================")
-    print("start adr: ", s_adr)
-    print("len: ", size)
-    print("====================")
-
-    dl_uart_write(uart.serial_inst, RqCmd.RQ_CHECK_BLANKING)
-
-    if type(s_adr) == str:
-        # send start address of memory
-        for i in range(4):
-            dl_uart_write(uart.serial_inst, int(s_adr[i * 2:i * 2 + 2],
-                                                base=16))
-        # send size of memory range that want to be erased
-        for i in range(4):
-            dl_uart_write(uart.serial_inst, int(size[i * 2:i * 2 + 2],
-                                                base=16))
-
-        data_str = s_adr + size
-        checksum = calculate_checksum_2byte(data_str)
-        dl_uart_write(uart.serial_inst, checksum)
-
-    elif type(s_adr) == int:
-        adr_list = [None] * 4
-        size_list = [None] * 4
-
-        # convert from int to int list
-        adr_list[0] = s_adr >> 24
-        adr_list[1] = s_adr >> 16 & 0xFF
-        adr_list[2] = s_adr >> 8 & 0xFF
-        adr_list[3] = s_adr & 0xFF
-
-        size_list[0] = size >> 24
-        size_list[1] = size >> 16 & 0xFF
-        size_list[2] = size >> 8 & 0xFF
-        size_list[3] = size & 0xFF
-
-        # send byte element in list
-        for e in adr_list:
-            dl_uart_write(uart.serial_inst, e)
-        for e in size_list:
-            dl_uart_write(uart.serial_inst, e)
-
-        # calculate checksum
-        data_str = []
-        for i in range(4):
-            data_str.append(str(adr_list[i]))
-        for i in range(4):
-            data_str.append(str(size_list[i]))
-
-        # send checksum
-        checksum = calculate_checksum_1byte(data_str)
-        dl_uart_write(uart.serial_inst, checksum)
-
-
 def send_crc_cmd(uart_port, s_adr, size, crc: int) -> None:
     """
     Check crc of memory range based on starting address and memory length
@@ -527,7 +337,7 @@ def send_crc_cmd(uart_port, s_adr, size, crc: int) -> None:
         for i in range(4):
             data_str.append(str(crc_list[i]))
 
-        checksum = calculate_checksum_1byte(data_str)
+        checksum = checksum_calc(data_str)
         dl_uart_write(uart_port, checksum)
 
 
@@ -565,7 +375,7 @@ def send_enter_bld_cmd(uart_port, rq_key: int = RQ_KEY) -> None:
         data_str.append(str(rq_key_list[i]))
 
     # Send checksum
-    checksum = calculate_checksum_1byte(data_str)
+    checksum = checksum_calc(data_str)
     dl_uart_write(uart_port, checksum)
 
 
@@ -628,7 +438,7 @@ def send_exit_bld_cmd(uart_port, res_key: int = RES_KEY) -> None:
         data_str.append(str(res_key_list[i]))
 
     # Send checksum
-    checksum = calculate_checksum_1byte(data_str)
+    checksum = checksum_calc(data_str)
     dl_uart_write(uart_port, checksum)
 
 
@@ -656,59 +466,6 @@ def read_exit_bld_response(uart_port) -> bool:
                     return False
 
 
-def calculate_checksum_1byte(data_str_list):
-    """
-    Calculate checksum for data string that contains 1 byte per element
-    """
-    total_checksum = 0
-
-    # half of len because read 2 chars at a time
-    for e in data_str_list:
-        total_checksum += int(e, base=10)
-
-    # %256 for return to 0 if reach 256
-    calc_checksum = (256 - total_checksum % 256) % 256
-    return calc_checksum
-
-
-def calculate_checksum_2byte(data_str):
-    """
-    Calculate checksum for data string that contains 2 byte per element
-    """
-    j = 0
-    total_checksum = 0
-
-    # half of len because read 2 chars at a time
-    for _ in range(int(len(data_str) / 2)):
-        total_checksum += int(data_str[j:j + 2], base=16)
-        j += 2
-
-    # %256 for return to 0 if reach 256
-    calc_checksum = (256 - total_checksum % 256) % 256
-    return calc_checksum
-
-
-def verify_checksum(data_str: str, ref_cs: str) -> bool:
-    """
-    Verify the checksum of a given data string against a reference checksum.
-
-    Args:
-        data_str (str): The data string for which the checksum is to be verified. It should be in hexadecimal format.
-        ref_cs (str): The reference checksum to compare against. It should be in hexadecimal format.
-
-    Returns:
-        bool: True if the calculated checksum matches the reference checksum, False otherwise.
-    """
-
-    calc_checksum = calculate_checksum_2byte(data_str)
-
-    if (calc_checksum == int(ref_cs, base=16)):
-        # if success, do nothing, else exit the application
-        return True
-    else:
-        print("\nData string is: ", data_str, len(data_str) / 2)
-        return False
-
 
 def delay_tick(time: int) -> None:
     """
@@ -720,3 +477,39 @@ def delay_tick(time: int) -> None:
     tick = 0
     while (tick <= time):
         tick += 1
+
+
+def dl_uart_read_resp(uart_port: serial.Serial) -> bytearray:
+    try:
+        rx_buf = uart_port.read(uart_port.in_waiting)
+    except ValueError:
+        print("catch value error")
+
+    if dl_uart_check_rx_buf_intergity(rx_buf):
+        return rx_buf[1:len(rx_buf) - 1]
+
+    return None
+
+@staticmethod
+def dl_uart_check_rx_buf_intergity(rx_buf: bytearray) -> bool:
+    """
+    Check the integrity of the received buffer by verifying its length and checksum.
+
+    Args:
+        rx_buf (bytearray): The received buffer.
+
+    Returns:
+        bool: True if the buffer length is valid, False otherwise.
+    """
+
+    # Check if the buffer is empty or too short
+    if len(rx_buf) != rx_buf[0]:
+        print("Error: Received buffer is empty or too short.")
+        return False
+
+    # Check CRC
+    if rx_buf[-1] != checksum_calc(rx_buf[:-1]):
+        print("Error: Checksum mismatch.")
+        return False
+
+    return True
