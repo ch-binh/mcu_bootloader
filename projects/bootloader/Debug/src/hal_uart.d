@@ -1,9 +1,7 @@
 # FIXED
 
 src/hal_uart.o: ../src/hal_uart.c \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
- ti_msp_dl_config.h \
+ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_core.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/DeviceFamily.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/m0p/mspm0c110x.h \
@@ -30,11 +28,12 @@ src/hal_uart.o: ../src/hal_uart.c \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/peripherals/m0p/hw_debugss.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0c110x.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
+ ti_msp_dl_config.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/driverlib.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_adc12.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_common.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_factoryregion.h \
- C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_core.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_aes.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_aesadv.h \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_comp.h \
@@ -75,13 +74,12 @@ src/hal_uart.o: ../src/hal_uart.c \
  C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_systick.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/sysmem_map.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h
 
-D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:
-
-D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
-
-ti_msp_dl_config.h:
+C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_core.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/msp.h:
 
@@ -135,6 +133,10 @@ C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0c110x.h:
 
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
+
+ti_msp_dl_config.h:
+
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/driverlib.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_adc12.h:
@@ -142,8 +144,6 @@ C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_adc12.h:
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_common.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_factoryregion.h:
-
-C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_core.h:
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/dl_aes.h:
 
@@ -225,4 +225,10 @@ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/sysmem_map.h:
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/checksum.h:
 
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:
+
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:

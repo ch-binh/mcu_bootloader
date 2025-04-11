@@ -1,6 +1,9 @@
-#include "inc/hal_uart.h"
-#include "inc/bootloader.h"
 #include "ti/driverlib/m0p/dl_core.h"
+
+#include "inc/bootloader.h"
+#include "inc/hal_bld.h"
+#include "inc/hal_uart.h"
+
 #include "utils/checksum.h"
 
 extern volatile bld_state_e sys_state;
@@ -33,26 +36,14 @@ void hal_uart_write(UART_Regs *const reg, uint8_t data) {
 }
 
 void hal_uart_burst_write(UART_Regs *const reg, uint8_t *data, uint8_t size) {
-  uint8_t tx_buf[size + 2];
-
-  tx_buf[0] = size + 2;
-  for (uint8_t i = 0; i < size; i++) {
-    tx_buf[i + 1] = data[i];
-  }
-  tx_buf[size + 1] = calc_checksum(tx_buf, size + 1);
-
-  /* Send size*/
-
   /* Send actual data package*/
-  for (int i = 0; i < (size + 2); i++) {
-    DL_UART_Main_transmitData(reg, tx_buf[i]);
+  for (int i = 0; i < (size); i++) {
+    DL_UART_Main_transmitData(reg, data[i]);
     // todo: if there is a function to check if uart tx ready, use here
     while (DL_UART_Main_isBusy(reg)) {
       delay_cycles(240); // delay (1us)
     }
   }
-
-  /* Send checksum */
 }
 
 /**
@@ -69,6 +60,18 @@ bld_cmd_e hal_uart_read_cmd(void) {
   /* reset data package */
   rx_buf_cnt = 0;
   return rx_buf[1];
+}
+
+void hal_uart_resp(UART_Regs *const reg, uint8_t *data, uint8_t size) {
+  uint8_t tx_buf[size + 2];
+
+  tx_buf[0] = size + 2; // add len to the packet
+  for (uint8_t i = 0; i < size; i++) { // move data buffer up 1 element
+    tx_buf[i + 1] = data[i];
+  }
+  tx_buf[size + 1] = calc_checksum(tx_buf, size + 1); // add cs
+
+  hal_uart_burst_write(reg, tx_buf, size + 2);
 }
 
 /**

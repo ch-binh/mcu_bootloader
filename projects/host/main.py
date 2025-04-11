@@ -112,32 +112,30 @@ def main() -> None:
     """Select a control command to execute."""
     print("=" * 40)
     print("2. Select commands")
-    print("-" * 40 + "\n")
+    print("-" * 40)
 
     cmd_options = {
-        "1":
-        lambda: cmd_erase(gUart),
-        "2":
-        lambda: cmd_check_blanking_cb(gUart),
-        "3":
-        lambda: dl_uart_write(UART_PORT, RqCmd.RQ_SYSTEM_RESET),
-        "4":
-        lambda: cmd_get_bld_version_cb(gUart),
-        "5":
-        lambda: read_enter_bld_response(UART_PORT)
-        if send_enter_bld_cmd(UART_PORT) else None,
-        "6":
-        lambda: read_exit_bld_response(UART_PORT)
-        if send_exit_bld_cmd(UART_PORT) else None,
+        "1": lambda: print("No Operation (NOP)"),
+        "2": lambda: cmd_get_bld_version_cb(gUart),
+        "3": lambda: cmd_check_blanking_cb(gUart),
+        "4": lambda: cmd_write(gUart),
+        "5": lambda: cmd_erase(gUart),
+        "6": lambda: print("No Operation (NOP)"),
+        "7": lambda: print("No Operation (NOP)"),
+        "8": lambda: print("No Operation (NOP)"),
+        "9": lambda: print("No Operation (NOP)"),
     }
 
-    cmd_mode = input("\n0. Download"
-                     "\n1. Erase"
-                     "\n2. Check Blanking"
-                     "\n3. System reset"
-                     "\n4. Get Bootloader version"
-                     "\n5. Enter Bootloader"
-                     "\n6. Exit Bootloader"
+    cmd_mode = input("0. No Operation (NOP)"
+                     "\n1. Enter Bootloader"
+                     "\n2. Get Bootloader version"
+                     "\n3. Check Blanking"
+                     "\n4. Write"
+                     "\n5. Erase"
+                     "\n6. Uploading"
+                     "\n7. Check CRC Mode"
+                     "\n8. System reset"
+                     "\n9. Exit Bootloader"
                      "\nReturning: write \"r\" to return"
                      "\nChoosing mode: ").strip()
 
@@ -147,30 +145,46 @@ def main() -> None:
         cmd_options[cmd_mode]()
     else:
         print("Unknown command, please try again.")
-        exit()
 
 
 #===========================================================================
 #   COMMANDS FUCNTIONS
 #===========================================================================
-@staticmethod
-def cmd_erase(uart_port: serial. Serial):
-    addr = 0x1800
-    size = 0x400
-    dl_bld_erase(uart_port, addr, size)
-
 
 @staticmethod
-def cmd_check_blanking_cb(uart_port: serial. Serial):
+def cmd_get_bld_version_cb(uart_port: serial.Serial):
+    print("Bootloader version is:", dl_bld_get_version(uart_port))
+
+@staticmethod
+def cmd_check_blanking_cb(uart_port: serial.Serial):
     addr = 0x1800
     size = 0x400
     print(f"Image from {addr} with size of {size}\
-        is {'clean' if dl_bld_blanking(uart_port, addr, size) else 'not blank'}")
+        is {'clean' if dl_bld_blanking(uart_port, addr, size, 1) else 'not blank'}"
+          )
+
+@staticmethod
+def cmd_write(uart_port: serial.Serial):
+    addr = 0x1800
+    data = [0x01, 0x02, 0x03, 0x04, 0x05,
+            0x06, 0x07, 0x08, 0x09, 0x0A,
+            0x0B, 0x0C, 0x0D, 0x0E, 0x0F]
+    if dl_bld_write(uart_port, addr, data, 1):
+        print("Write success")
+    else:
+        print("Write failed")
 
 
 @staticmethod
-def cmd_get_bld_version_cb(uart_port: serial. Serial):
-    print("Bootloader version is:", dl_bld_get_version(uart_port))
+def cmd_erase(uart_port: serial.Serial):
+    addr = 0x1800
+    size = 0x400
+    dl_bld_erase(uart_port, addr, size, 1)
+
+
+
+
+
 
 
 #===========================================================================

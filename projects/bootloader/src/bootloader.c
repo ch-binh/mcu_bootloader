@@ -1,15 +1,28 @@
-
-
 #include "inc/bootloader.h"
 #include "inc/hal_bld.h"
 #include "inc/hal_flash.h"
 #include "inc/hal_gpio.h"
 #include "inc/hal_uart.h"
 
+/**
+ *  VARIABLES AND DEFINE
+ *===================================================================
+ */
+
 volatile bld_state_e sys_state = BLD_IDLE;
 volatile bld_cmd_e host_cmd = CMD_NOP;
 
+/**
+ *  APPLICATION OPERATIONS
+ *===================================================================
+ */
+
 static void bld_exe_cmd(void) {
+  uint8_t rx_buffer[UART_RX_LEN_MAX];
+  uint32_t addr = 0;
+  uint32_t size = 0;
+
+  hal_uart_fetch_rx_buf(rx_buffer, sizeof(rx_buffer)); // copy rx buffer
   switch (host_cmd) {
 
   case CMD_GET_BLD_VER: {
@@ -17,34 +30,59 @@ static void bld_exe_cmd(void) {
     uint8_t bld_ver[BLD_VER_LEN] = {BLD_VER_MAJOR, BLD_VER_RESERVE,
                                     BLD_VER_MINOR, BLD_VER_PATCH};
 
-    hal_uart_burst_write(UART_0_INST, bld_ver, BLD_VER_LEN);
+    hal_uart_resp(UART_0_INST, bld_ver, BLD_VER_LEN);
   } break;
 
-  case CMD_BLANKING: {
-    uint8_t rx_buffer[UART_RX_LEN_MAX];
-    uint32_t addr = 0;
-    uint32_t size = 0;
-
-    hal_uart_fetch_rx_buf(rx_buffer, sizeof(rx_buffer));
-
+  case CMD_CHECK_BLANKING:
+  case CMD_ERASE: {
+    /* shared process*/
     for (int i = 0; i < 4; i++) {
       addr |= rx_buffer[2 + i] << (24 - i * 8);
       size |= rx_buffer[6 + i] << (24 - i * 8);
     }
 
-    bool is_blank = hal_flash_check_blanking(addr, size);
-    hal_uart_burst_write(UART_0_INST, (uint8_t *)&is_blank, sizeof(is_blank));
+    /* Individual process*/
+    if (host_cmd == CMD_CHECK_BLANKING) {
+      bool is_blank = hal_flash_check_blanking(addr, size);
+      hal_uart_resp(UART_0_INST, (uint8_t *)&is_blank, sizeof(is_blank));
+    } else {
+      hal_flash_erase_mem(addr, size);
+      if (rx_buffer[rx_buffer[0] - 2] == REQ_ACK) {
+        uint8_t ret = 0x01;
+        hal_uart_resp(UART_0_INST, (uint8_t *)&ret, sizeof(ret));
+      }
+    }
   } break;
 
-  case CMD_ERASE: {
-    while (1)
-      ;
+  case CMD_WRITE: {
+    for (int i = 0; i < 4; i++) {
+      addr |= rx_buffer[2 + i] << (24 - i * 8);
+    }
+
+    uint32_t write_buffer = 0x00;
+    for (int i = 0; i < rx_buffer[0] - 8; i += 4) {
+      for (int j = 0; j < 4; j++) {
+        write_buffer |= rx_buffer[6 + i + j] << (24 - j * 8);
+      }
+      hal_flash_write_mem_32bit(addr + i, write_buffer);
+      write_buffer = 0x00;
+    }
+
+    if (rx_buffer[rx_buffer[0] - 2] == REQ_ACK) {
+      uint8_t ret = 0x01;
+      hal_uart_resp(UART_0_INST, (uint8_t *)&ret, sizeof(ret));
+    }
   } break;
 
   default:
     break;
   }
 }
+
+/**
+ *  MAIN
+ *===================================================================
+ */
 
 int main(void) {
   int ret;

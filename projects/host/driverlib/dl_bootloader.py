@@ -2,155 +2,239 @@ import time
 
 from dl_uart import *
 from utils.checksum import *
+
+#
+# VARIABLES AND DEFINES
+#============================================================================
+
+
 ### Package info
 ### SIZE [1 Byte] | DATA n... | CHECKSUM
 ###
+class Def:
+    WAIT_TIME = 0.01
 
 
 class UartPkg:
     UART_END_BYTE = 0xFE
 
-# CMD 1: ERASE
-def dl_bld_erase(uart_port: serial.Serial, fl_adr, size) -> bool:
-    """
-    Send erase command to MCU. Including starting address and size of memory to be erased.
-    First send blanking command, if returns dirty, erase command is sent. Otherwise, 
-    The erase command is dismissed.
 
-    Notes: Data sent including:
-        1 cmd byte
-        4 address bytes
-        4 memory size bytes
-        1 checksum byte
+class Cmd():
+    """
+    Contains the request commands
+    """
+    CMD_NOP = 0x00
+    CMD_ENTER_BLD = 0x01
+    CMD_GET_BLD_VER = 0x02
+    CMD_CHECK_BLANKING = 0x03
+    CMD_WRITE = 0x04
+    CMD_ERASE = 0x05
+    CMD_UPLOADING = 0x06
+    CMD_CHECK_CRC_MODE = 0x07
+    CMD_SYSRST = 0x08
+    CMD_EXIT_BLD = 0x09
+    CMD_NUM = 0x0A
+    CMD_UNDEFINED = 0xFF
+
+
+#
+# Static functions
+# Note: These functions are not part of the class and
+# are not intended to be used as methods.
+# They are utility functions that can be used independently.
+#============================================================================
+@staticmethod
+def dl_bld_prep_packet(length: int, cmd: int, data: list,
+                       req_ack: int) -> bytearray:
+    """
+    Prepare a packet to be sent over UART.
 
     Args:
-        COM (object): The COM port object used for communication.
-        s_adr (int/str): Start address of the memory range that to be erased
-        size (int/str): Size of data to be erased
+        length (int): Total length of the packet including all fields.
+        cmd (int): Command identifier byte.
+        data (list): List of data bytes to include in the packet.
+        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
 
     Returns:
-        bool: True if MCU is erased successfully, or memory is already clean. \
-            False if not getting erase successful response.
+        bytearray: The prepared packet.
     """
+    packet = [length, cmd] + data + [req_ack]
+    packet.append(checksum_calc(packet))
+    return bytearray(packet)
 
-    if(dl_bld_blanking(uart_port, fl_adr, size)):
-        print("Image is already blank, erase skipped")
-        return True
-    
-    tx_buf = []
-    
-    # send first byte command
-    tx_buf.append(11)  # length of data to be sent
-    tx_buf.append(RqCmd.RQ_ERASE)
 
-    if type(fl_adr) == str:
-        # send start address of memory
-        for i in range(4):
-            tx_buf.append(int(fl_adr[i * 2:i * 2 + 2], base=16))
-        # send size of memory range that want to be erased
-        for i in range(4):
-            tx_buf.append(int(size[i * 2:i * 2 + 2], base=16))
+#
+# Command functions
+#============================================================================
 
-        checksum = checksum_calc(tx_buf)
-        tx_buf.append(checksum)
-        dl_uart_write(uart_port, tx_buf)
 
-    elif type(fl_adr) == int:
-        for i in range(4):
-            tx_buf.append((fl_adr >> (24 - i * 8)) & 0xFF)
-        for i in range(4):
-            tx_buf.append((size >> (24 - i * 8)) & 0xFF)
+# CMD 2: GET BOOTLOADER VERSION
+def dl_bld_get_version(uart_port: serial.Serial) -> bytearray:
+    """
+    Retrieve the bootloader version from the MCU.
 
-        # send checksum
-        checksum = checksum_calc(tx_buf)
-        tx_buf.append(checksum)
-        dl_uart_write(uart_port, tx_buf)
+    Notes:
+        The data sent includes:
+        - 1 length byte (value = 3)
+        - 1 command byte (CMD_GET_BLD_VER)
+        - 1 checksum byte
 
-    #handle response
+    Args:
+        uart_port (serial.Serial): The UART port object used for communication.
+        
+    Returns:
+        bytearray: The response from the MCU containing the bootloader version.
+    """
+    # Prepare the transmit buffer
+    tx_buf = dl_bld_prep_packet(length=4,
+                                cmd=Cmd.CMD_GET_BLD_VER,
+                                data=[],
+                                req_ack=1)
+
+    # Send the command over UART
+    dl_uart_write(uart_port, tx_buf)
+
+    time.sleep(Def.WAIT_TIME)
     return dl_uart_read_resp(uart_port)
 
 
-
-# CMD 2: CHECK BLANKING
-def dl_bld_blanking(uart_port: serial.Serial, fl_adr, size) -> bool:
+# CMD 3: CHECK BLANKING
+def dl_bld_blanking(uart_port: serial.Serial,
+                    fl_adr,
+                    size,
+                    req_ack: int = 1) -> bool:
     """
-    Check blanking of memory range based on starting address and memory length
-
-    Notes: Data sent including:
-        1 len byte = 11
-        1 cmd byte
-        4 address bytes
-        4 memory size bytes
-        1 checksum byte
-
+    Check blanking of memory range based on starting address and memory length.
+    
+    Data sent includes:
+        1b len, 1b cmd, 4b address, 4b size, 1b req_ack, 1b checksum
+        
     Args:
-        uart_port (serial.Serial): The COM port object used for communication.
-        s_adr (int/str): Start address of the memory range that to be checked
-        size (int/str): Size of data to be checked
+        uart_port (serial.Serial): The UART port object used for communication.
+        fl_adr (int/str): Start address of the memory range to be checked (int or hex string).
+        size (int/str): Size of data to be checked (int or hex string).
+        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
 
     Returns:
         bool: True if memory range is clean. False if it is dirty.
     """
-    tx_buf = []  # buffer to store transmit data
+    packet_data = []
 
-    print("====================")
-    print("start adr: ", fl_adr)
-    print("len: ", size)
-    print("====================")
+    if isinstance(fl_adr, str):
+        packet_data.extend(
+            int(fl_adr[i * 2:i * 2 + 2], base=16) for i in range(4))
+        packet_data.extend(
+            int(size[i * 2:i * 2 + 2], base=16) for i in range(4))
+    elif isinstance(fl_adr, int):
+        packet_data.extend((fl_adr >> (24 - i * 8)) & 0xFF for i in range(4))
+        packet_data.extend((size >> (24 - i * 8)) & 0xFF for i in range(4))
 
-    # send first byte command
-    tx_buf.append(11)  # length of data to be sent
-    tx_buf.append(RqCmd.RQ_CHECK_BLANKING)
+    tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
+                                cmd=Cmd.CMD_CHECK_BLANKING,
+                                data=packet_data,
+                                req_ack=req_ack)
+    dl_uart_write(uart_port, tx_buf)
 
-    if type(fl_adr) == str:
-        # send start address of memory
-        for i in range(4):
-            tx_buf.append(int(fl_adr[i * 2:i * 2 + 2], base=16))
-        # send size of memory range that want to be erased
-        for i in range(4):
-            tx_buf.append(int(size[i * 2:i * 2 + 2], base=16))
-
-        checksum = checksum_calc(tx_buf)
-        tx_buf.append(checksum)
-        dl_uart_write(uart_port, tx_buf)
-
-    elif type(fl_adr) == int:
-        for i in range(4):
-            tx_buf.append((fl_adr >> (24 - i * 8)) & 0xFF)
-        for i in range(4):
-            tx_buf.append((size >> (24 - i * 8)) & 0xFF)
-
-        # send checksum
-        checksum = checksum_calc(tx_buf)
-        tx_buf.append(checksum)
-        dl_uart_write(uart_port, tx_buf)
-
-    time.sleep(0.01)
-    # handle response
+    time.sleep(Def.WAIT_TIME)
+    # Handle response
     resp = dl_uart_read_resp(uart_port)
     return resp[0]
 
 
-# CMD 4: GET BOOTLOADER VERSION
-def dl_bld_get_version(uart_port: serial.Serial,
-                       num_byte: int = 1) -> bytearray:
+# CMD 4: WRITE
+def dl_bld_write(uart_port: serial.Serial,
+                 fl_adr,
+                 data: bytearray,
+                 req_ack: int = 0) -> bytearray:
     """
-    Read response from MCU based on defined number of byte wants to be read..
-    
-    Notes: Data sent including:
-        1 len byte = 3
-        1 cmd byte
-        1 checksum byte
-    """
-    tx_buf = []
-    rx_buf: bytes
-    tx_buf.append(3)
-    tx_buf.append(RqCmd.RQ_GET_BLD_VER)
-    tx_buf.append(checksum_calc(tx_buf))
+    Send data to the MCU to be written to flash memory.
 
+    Data sent includes:
+        1b len, 1b cmd, 4b address, n data, 1b req_ack, 1b checksum
+
+    Args:
+        uart_port (serial.Serial): The UART port object used for communication.
+        fl_adr (int/str): Start address of the memory range to be written (int or hex string).
+        data (bytearray): Data to be written to the memory.
+        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
+
+    Returns:
+        bytearray: The response from the MCU after the write operation.
+    """
+    packet_data = []
+
+    if isinstance(fl_adr, str):
+        packet_data.extend(
+            int(fl_adr[i * 2:i * 2 + 2], base=16) for i in range(4))
+    elif isinstance(fl_adr, int):
+        packet_data.extend((fl_adr >> (24 - i * 8)) & 0xFF for i in range(4))
+
+    #padding data to 4 bytes
+    if len(data) % 4 != 0:
+        for _ in range(4 - len(data) % 4):
+            data.extend([0xFF])
+
+    packet_data.extend(data)
+
+    tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
+                                cmd=Cmd.CMD_WRITE,
+                                data=packet_data,
+                                req_ack=req_ack)
     dl_uart_write(uart_port, tx_buf)
 
-    time.sleep(0.01)
-    # handle response
-    return dl_uart_read_resp(uart_port)
+    # Handle response
+    if req_ack == 1:
+        time.sleep(Def.WAIT_TIME)
+        resp = dl_uart_read_resp(uart_port)
+        return resp[0]  # ACK 1 or 0
 
+    return 1
+
+
+# CMD 5: ERASE
+def dl_bld_erase(uart_port: serial.Serial,
+                 fl_adr,
+                 size,
+                 req_ack: int = 0) -> bytearray:
+    """
+    Send erase command to MCU. Including starting address and size of memory to be erased.
+
+    Notes: Data sent includes:
+        1 cmd byte
+        4 address bytes
+        4 memory size bytes
+        1 checksum byte
+
+    Args:
+        uart_port (serial.Serial): The UART port object used for communication.
+        fl_adr (int/str): Start address of the memory range to be erased (int or hex string).
+        size (int/str): Size of data to be erased (int or hex string).
+        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
+
+    Returns:
+        bytearray: The response from the MCU after the erase operation.
+    """
+    packet_data = []
+
+    if isinstance(fl_adr, str):
+        packet_data.extend(
+            int(fl_adr[i * 2:i * 2 + 2], base=16) for i in range(4))
+        packet_data.extend(
+            int(size[i * 2:i * 2 + 2], base=16) for i in range(4))
+    elif isinstance(fl_adr, int):
+        packet_data.extend((fl_adr >> (24 - i * 8)) & 0xFF for i in range(4))
+        packet_data.extend((size >> (24 - i * 8)) & 0xFF for i in range(4))
+
+    tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
+                                cmd=Cmd.CMD_ERASE,
+                                data=packet_data,
+                                req_ack=req_ack)
+    dl_uart_write(uart_port, tx_buf)
+
+    # Handle response
+    if req_ack == 1:
+        time.sleep(Def.WAIT_TIME)
+        resp = dl_uart_read_resp(uart_port)
+        return resp[0]  # ACK 1 or 0
+
+    return 1
