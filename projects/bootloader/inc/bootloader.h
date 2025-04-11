@@ -6,6 +6,10 @@
 #include "inc/sysmem_map.h"
 #include "utils/checksum.h"
 
+/**
+ *  VARIABLES AND DEFINE
+ *===================================================================
+ */
 #define DELAY (12000000)
 
 #define BLD_VER_MAJOR '0'
@@ -24,5 +28,9 @@ typedef enum {
   BLD_FINISH
 } bld_state_e;
 
+/**
+ *  FUNCTIONS
+ *===================================================================
+ */
 
 #endif

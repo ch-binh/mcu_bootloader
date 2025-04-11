@@ -10,8 +10,8 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "driverlib")))
 
 from driverlib.dl_uart import *
-from driverlib.dl_hex_file import *
-from driverlib.dl_bootloader import *
+from driverlib.dl_hexf import *
+from driverlib.dl_bld import *
 from common.memory_map import *
 
 ### Global variable
@@ -103,7 +103,7 @@ def set_sys_info() -> None:
 
     SystemInfo.scan_hex_files()
     SystemInfo.input_set_hex_file()
-    Uart.cfg_port(SystemInfo.target_hex_file_addr)
+    Uart.cfg_file_addr(SystemInfo.target_hex_file_addr)
 
     gUart = dl_uart_init()
 
@@ -120,8 +120,8 @@ def main() -> None:
         "3": lambda: cmd_check_blanking_cb(gUart),
         "4": lambda: cmd_write(gUart),
         "5": lambda: cmd_erase(gUart),
-        "6": lambda: print("No Operation (NOP)"),
-        "7": lambda: print("No Operation (NOP)"),
+        "6": lambda: cmd_upload_file(gUart),
+        "7": lambda: cmd_check_crc(gUart),
         "8": lambda: print("No Operation (NOP)"),
         "9": lambda: print("No Operation (NOP)"),
     }
@@ -132,8 +132,8 @@ def main() -> None:
                      "\n3. Check Blanking"
                      "\n4. Write"
                      "\n5. Erase"
-                     "\n6. Uploading"
-                     "\n7. Check CRC Mode"
+                     "\n6. Upload file"
+                     "\n7. Check CRC"
                      "\n8. System reset"
                      "\n9. Exit Bootloader"
                      "\nReturning: write \"r\" to return"
@@ -179,8 +179,27 @@ def cmd_write(uart_port: serial.Serial):
 def cmd_erase(uart_port: serial.Serial):
     addr = 0x1800
     size = 0x400
-    dl_bld_erase(uart_port, addr, size, 1)
+    if dl_bld_erase(uart_port, addr, size, 1):
+        print("Erase success")
+    else:
+        print("Erase failed")
+        
+@staticmethod
+def cmd_upload_file(uart_port: serial.Serial):
+    if dl_bld_upload_file(uart_port, SystemInfo.target_hex_file_addr):
+        print("Uploading success")
+    else:
+        print("Uploading failed")
 
+
+@staticmethod
+def cmd_check_crc(uart_port: serial.Serial):
+    addr = 0x1800
+    size = 0x400
+    if dl_bld_check_crc(uart_port, addr, size, 1):
+        print("CRC check success")
+    else:
+        print("CRC check failed")
 
 
 

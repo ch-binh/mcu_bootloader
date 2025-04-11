@@ -1,5 +1,6 @@
 import time
 
+from dl_hexf import dl_hexf_upload_file
 from dl_uart import *
 from utils.checksum import *
 
@@ -238,3 +239,22 @@ def dl_bld_erase(uart_port: serial.Serial,
         return resp[0]  # ACK 1 or 0
 
     return 1
+
+# CMD 6: UPLOADING
+def dl_bld_upload_file(uart_port: serial.Serial, file_path: str):
+    if file_path.endswith(".hex"):
+        dl_hexf_upload_file(uart_port, file_path)
+        print("Uploading hex file")
+    elif file_path.endswith(".bin"):
+        print("Uploading bin file")
+    elif file_path.endswith(".elf"):
+        print("Uploading elf file")
+    
+    
+    return 1
+
+# CMD 7: CHECK CRC
+
+def dl_bld_check_crc(uart_port:serial.Serial):
+    pass
+    
