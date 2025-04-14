@@ -1,22 +1,25 @@
 import time
 from dl_uart import *
-import utils.crc_32 as crc_32
 from common.memory_map import *
+
 
 #
 # DEFINES AND VARIABLES
 #============================================================================
-
-
 class ImageInfo:
-    FLASH_SIZE = 0x2000
 
-    main_addr = 0x0000
-    cur_addr = 0x0000
-    s_addr = 0xFFFFFFFF
-    e_addr = 0x00000000
-
-    mem_buffer = [0xFF] * FLASH_SIZE
+    def __init__(self,
+                 flash_size=0x2000,
+                 main_addr=0x0000,
+                 cur_addr=0x0000,
+                 s_addr=0xFFFFFFFF,
+                 e_addr=0x00000000):
+        self.flash_size = flash_size
+        self.main_addr = main_addr
+        self.cur_addr = cur_addr
+        self.s_addr = s_addr
+        self.e_addr = e_addr
+        self.mem_buffer = [0xFF] * flash_size
 
 
 class IHexRecType:
@@ -31,21 +34,16 @@ class IHexRecType:
     START_LINEAR_ADDR = 0x05
 
 
-global period
-global main_address
-global START_ADR
-global END_ADR
-global END_ADR_OFFSET
-global is_first_read_attempt
-
-END_ADR_OFFSET = 0
-is_first_read_attempt = True
+_image_info = ImageInfo()
 
 
 #
 # Command functions
 #============================================================================
-def dl_hexf_upload_file(port, file_path: str) -> bool:
+def dl_hexf_read_file(file_path: str) -> ImageInfo:
+    """
+    Read and verify the hex file, and store the image in RAM.
+    """
     print("Verify file path: opening file...")
     try:
         with open(file_path, 'rb') as file:
@@ -55,18 +53,20 @@ def dl_hexf_upload_file(port, file_path: str) -> bool:
                 print("Hex file is invalid")
                 return False
 
-            
-            list_mask = dl_hexf_get_addr_boundary(file)
-            ImageInfo.main_addr, ImageInfo.s_addr, ImageInfo.e_addr = list_mask
+            # Also to determine the start and end address
+            dl_hexf_get_addr_boundary(_image_info, file)
 
             # Store image in RAM so can be used to verify later
+            dl_hexf_shadow_read(_image_info, file)
+
+            return _image_info
 
     except FileNotFoundError:
         print(f"File not found: {file_path}")
-        exit()
+        return None
     except IOError:
         print(f"An error occurred while reading the file: {file_path}")
-        exit()
+        return None
 
 
 #=================================================================
@@ -102,7 +102,7 @@ def dl_hexf_verify_file(file) -> bool:
 
 
 @staticmethod
-def dl_hexf_get_addr_boundary(file) -> list:
+def dl_hexf_get_addr_boundary(image_buf: ImageInfo, file) -> bool:
     """
     Read the hex file and determine the start and end addresses of the data.
     """
@@ -122,70 +122,41 @@ def dl_hexf_get_addr_boundary(file) -> list:
             main_addr = hex_line[4]
         # if indicating data, save start and end address
         elif hex_line[3] == IHexRecType.DATA:
-            # First read attempt to initialize data address value
             line_addr = main_addr + (hex_line[2][0] << 8 | hex_line[2][1])
 
-            # update start address value if
+            # update start and end address value
             if line_addr < s_addr:
                 s_addr = line_addr
-            # Save end address value
             if line_addr > e_addr:
                 e_addr = line_addr + hex_line[1] - 1
 
-    print(main_addr, s_addr, e_addr)
+    image_buf.main_addr = main_addr
+    image_buf.s_addr = s_addr
+    image_buf.e_addr = e_addr
     print("Finding boundary addresss: File read complete..")
-    return [main_addr, s_addr, e_addr]
+    return True
 
 
 @staticmethod
-def dl_hexf_shadow_read(file):
+def dl_hexf_shadow_read(image_buf: ImageInfo, file) -> bool:
     file.seek(0, 0)  # return cursor to start of line
 
     print("Shadowing hex file: reading file...")
     for line in file:
         hex_line = dl_hexf_line_breakdown(line)
-        
+
         # if indicating data, save start and end address
         if hex_line[3] == IHexRecType.DATA:
-            # First read attempt to initialize data address value
-            line_addr = ImageInfo.main_addr + (hex_line[2][0] << 8 | hex_line[2][1])
+            line_addr = image_buf.main_addr + (hex_line[2][0] << 8
+                                               | hex_line[2][1])
+            for i in range(hex_line[1]):
+                # read data from hex line and store in memory
+                image_buf.mem_buffer[line_addr - image_buf.s_addr +
+                                     i] = hex_line[4][i]
 
+    print("Shadowing hex file: memory copy success")
 
-def write_line_to_mem(line_data: str, hex_file: str, n_line: int,
-                      line_ctr: int) -> str:
-
-    global period
-    global main_address, START_ADR, END_ADR
-    global is_first_read_attempt
-    global memory_str
-
-    # Output to terminal current download progress
-
-    # return cursor to start of line
-    hex_file.seek(-len(line_data), 1)
-    data_list = parse_hex_line(hex_file, len(line_data))
-    start_code, byte_count, line_adr, record_type, datapart, checksum, eol = data_list
-
-    # write "binary" file here because need to determine start and end address first
-
-    full_address = main_address + line_adr
-    start_adr = int(START_ADR, 16)
-    current_adr = int(full_address, 16)
-    # write to memory bin
-    if record_type == "04":
-        main_address = datapart
-    # if indicating data, save start and end address
-    elif record_type == "00":
-        j = 0
-        # First read attempt to initialize data address value
-        for i in range(int(byte_count[j:j + 2], base=16)):
-            memory_str[current_adr - start_adr + i] = datapart[j:j + 2]
-            j += 2
-
-    # prepare for line checksum
-    data_string = byte_count + line_adr + record_type + datapart + checksum
-
-    return data_string
+    return True
 
 
 @staticmethod
@@ -229,55 +200,9 @@ def dl_hexf_line_breakdown(line: str) -> list:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#=============================================================================
+#
+#
 #
 # OLD functions
 #============================================================================
@@ -379,7 +304,7 @@ def send_crc_check(u_port, hex_file):
     # check crc whole image first
 
     end_ptr = int(END_ADR, 16) - int(START_ADR, 16) + END_ADR_OFFSET
-    image_crc = crc_32.crc32(memory_byte_list[:end_ptr])
+    image_crc = crc32.crc32(memory_byte_list[:end_ptr])
     # print(memory_byte_list[:end_ptr])
     print("====================")
     print("start adr: ", START_ADR)
@@ -406,11 +331,11 @@ def send_crc_check(u_port, hex_file):
         while (True):
             crc_len = end_ptr - start_ptr
             if test_case_1 == 1:
-                sector_crc = crc_32.crc32(
+                sector_crc = crc32.crc32(
                     memory_byte_list[start_ptr:start_ptr + crc_len - 1])
                 test_case_1 += 10
             else:
-                sector_crc = crc_32.crc32(
+                sector_crc = crc32.crc32(
                     memory_byte_list[start_ptr:start_ptr + crc_len])
                 test_case_1 += 1
 
@@ -448,7 +373,7 @@ def send_crc_check(u_port, hex_file):
 
                     print(start_ptr, end_ptr, crc_len)
                     crc_len = end_ptr - start_ptr
-                    sector_crc = crc_32.crc32(
+                    sector_crc = crc32.crc32(
                         memory_byte_list[start_ptr:start_ptr + crc_len])
 
                     send_crc_cmd(u_port, crc_start_addr, crc_len, sector_crc)

@@ -1,8 +1,9 @@
 import time
 
-from dl_hexf import dl_hexf_upload_file
+from dl_hexf import ImageInfo, dl_hexf_read_file
 from dl_uart import *
 from utils.checksum import *
+from utils.crc32 import crc32
 
 #
 # VARIABLES AND DEFINES
@@ -30,7 +31,7 @@ class Cmd():
     CMD_CHECK_BLANKING = 0x03
     CMD_WRITE = 0x04
     CMD_ERASE = 0x05
-    CMD_UPLOADING = 0x06
+    CMD_UPLOAD = 0x06
     CMD_CHECK_CRC_MODE = 0x07
     CMD_SYSRST = 0x08
     CMD_EXIT_BLD = 0x09
@@ -240,21 +241,73 @@ def dl_bld_erase(uart_port: serial.Serial,
 
     return 1
 
+
+#
 # CMD 6: UPLOADING
+#=====================================================================
 def dl_bld_upload_file(uart_port: serial.Serial, file_path: str):
     if file_path.endswith(".hex"):
-        dl_hexf_upload_file(uart_port, file_path)
-        print("Uploading hex file")
+        dl_bld_upload_hex_file(uart_port, file_path)
+
     elif file_path.endswith(".bin"):
         print("Uploading bin file")
     elif file_path.endswith(".elf"):
         print("Uploading elf file")
-    
-    
+
     return 1
 
-# CMD 7: CHECK CRC
 
-def dl_bld_check_crc(uart_port:serial.Serial):
-    pass
+@staticmethod
+def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
+    image_info = ImageInfo()
+    image_info = dl_hexf_read_file(file_path)
+
+    # Prepare the transmit buffer
+    chunk_size = 128  # 128 bytes
+    image_size = image_info.e_addr - image_info.s_addr
+    num_of_packets = int(image_size / chunk_size) + 1 # last packet may be smaller than 128 bytes
     
+    # 1. Clear the flash image
+    print("Uploading file: Cleaning flash image...")
+    start_addr = image_info.main_addr + image_info.s_addr
+    # if not dl_bld_erase(uart_port, start_addr, image_size, 1):
+    #     print("Image cleaning failed")
+    #     return 0
+    print("Uploading file: Cleaning flash image success")
+
+    # 2. Send write command
+    print("Uploading file: writing flash image...")
+    for i in range(num_of_packets):
+        # init
+        packet_data = []
+        # add address
+        write_addr = (image_info.main_addr << 16) + image_info.s_addr + chunk_size * i
+        packet_data.extend(
+            (write_addr >> (24 - i * 8)) & 0xFF for i in range(4))
+
+        # add data, rearrange data to big endian format
+        for j in range(0, chunk_size, 4):
+            for k in range(4):
+                packet_data.append(image_info.mem_buffer[(chunk_size * i) + j + 3 - k])
+            
+        tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
+                                    cmd=Cmd.CMD_WRITE,
+                                    data=packet_data,
+                                    req_ack=0)
+
+        #dl_uart_write(uart_port, tx_buf)
+        
+    # 3. CRC check
+    dl_bld_check_crc(uart_port, image_info.mem_buffer[:image_size])
+
+    return
+
+
+#
+# CMD 7: CHECK CRC
+#=====================================================================
+def dl_bld_check_crc(uart_port: serial.Serial, data: bytearray):
+    #convert byte array to 32bit
+    ret = crc32(data)
+    print(ret)
+    pass

@@ -74,6 +74,10 @@ static void bld_exe_cmd(void) {
     }
   } break;
 
+  case CMD_CRC_CHECK: {
+
+  } break;
+
   default:
     break;
   }

@@ -9,7 +9,7 @@
  *  VARIABLES AND DEFINES
  *===================================================================
  */
-#define UART_RX_LEN_MAX 128
+#define UART_RX_LEN_MAX 148
 #define UART_END_BYTE 0xFE
 
 /**

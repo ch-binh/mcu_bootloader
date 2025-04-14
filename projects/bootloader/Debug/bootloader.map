@@ -301,85 +301,83 @@ LOAD ./utils/checksum.o
                 0x00000540                _init
  *fill*         0x00000542        0x2 
  .text.bld_exe_cmd
-                0x00000544      0x118 ./src/bootloader.o
- .text.main     0x0000065c       0x6c ./src/bootloader.o
-                0x0000065c                main
+                0x00000544      0x11c ./src/bootloader.o
+ .text.main     0x00000660       0x6c ./src/bootloader.o
+                0x00000660                main
  .text.hal_bld_verify_app_mem
-                0x000006c8       0x3a ./src/hal_bld.o
-                0x000006c8                hal_bld_verify_app_mem
+                0x000006cc       0x3a ./src/hal_bld.o
+                0x000006cc                hal_bld_verify_app_mem
  .text.hal_bld_go_to_main_app
-                0x00000702        0x8 ./src/hal_bld.o
-                0x00000702                hal_bld_go_to_main_app
- *fill*         0x0000070a        0x2 
+                0x00000706        0x8 ./src/hal_bld.o
+                0x00000706                hal_bld_go_to_main_app
+ *fill*         0x0000070e        0x2 
  .text.hal_flash_write_mem_32
-                0x0000070c       0x44 ./src/hal_flash.o
-                0x0000070c                hal_flash_write_mem_32
+                0x00000710       0x44 ./src/hal_flash.o
+                0x00000710                hal_flash_write_mem_32
  .text.hal_flash_write_mem_64
-                0x00000750       0x44 ./src/hal_flash.o
-                0x00000750                hal_flash_write_mem_64
+                0x00000754       0x44 ./src/hal_flash.o
+                0x00000754                hal_flash_write_mem_64
  .text.hal_flash_erase_mem
-                0x00000794       0x58 ./src/hal_flash.o
-                0x00000794                hal_flash_erase_mem
+                0x00000798       0x58 ./src/hal_flash.o
+                0x00000798                hal_flash_erase_mem
  .text.hal_flash_write_mem_32bit
-                0x000007ec       0x24 ./src/hal_flash.o
-                0x000007ec                hal_flash_write_mem_32bit
+                0x000007f0       0x24 ./src/hal_flash.o
+                0x000007f0                hal_flash_write_mem_32bit
  .text.hal_flash_check_blanking
-                0x00000810       0x1c ./src/hal_flash.o
-                0x00000810                hal_flash_check_blanking
+                0x00000814       0x1c ./src/hal_flash.o
+                0x00000814                hal_flash_check_blanking
  .text.hal_uart_en_irq
-                0x0000082c       0x14 ./src/hal_uart.o
-                0x0000082c                hal_uart_en_irq
+                0x00000830       0x14 ./src/hal_uart.o
+                0x00000830                hal_uart_en_irq
  .text.hal_uart_burst_write
-                0x00000840       0x30 ./src/hal_uart.o
-                0x00000840                hal_uart_burst_write
+                0x00000844       0x30 ./src/hal_uart.o
+                0x00000844                hal_uart_burst_write
  .text.hal_uart_read_cmd
-                0x00000870       0x30 ./src/hal_uart.o
-                0x00000870                hal_uart_read_cmd
+                0x00000874       0x30 ./src/hal_uart.o
+                0x00000874                hal_uart_read_cmd
  .text.hal_uart_resp
-                0x000008a0       0x56 ./src/hal_uart.o
-                0x000008a0                hal_uart_resp
- *fill*         0x000008f6        0x2 
+                0x000008a4       0x56 ./src/hal_uart.o
+                0x000008a4                hal_uart_resp
+ *fill*         0x000008fa        0x2 
  .text.hal_uart_fetch_rx_buf
-                0x000008f8       0x18 ./src/hal_uart.o
-                0x000008f8                hal_uart_fetch_rx_buf
+                0x000008fc       0x18 ./src/hal_uart.o
+                0x000008fc                hal_uart_fetch_rx_buf
  .text.UART0_IRQHandler
-                0x00000910       0x48 ./src/hal_uart.o
-                0x00000910                UART0_IRQHandler
+                0x00000914       0x48 ./src/hal_uart.o
+                0x00000914                UART0_IRQHandler
  .text.calc_checksum
-                0x00000958       0x1a ./utils/checksum.o
-                0x00000958                calc_checksum
- *fill*         0x00000972        0x2 
+                0x0000095c       0x1a ./utils/checksum.o
+                0x0000095c                calc_checksum
+ *fill*         0x00000976        0x2 
  .text.DL_Common_delayCycles
-                0x00000974        0xc C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
-                0x00000974                DL_Common_delayCycles
+                0x00000978        0xc C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                0x00000978                DL_Common_delayCycles
  .text.DL_FlashCTL_eraseMemory
-                0x00000980       0x18 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
-                0x00000980                DL_FlashCTL_eraseMemory
+                0x00000984       0x18 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
+                0x00000984                DL_FlashCTL_eraseMemory
  .text.DL_FlashCTL_programMemoryFromRAM32
-                0x00000998       0x2c C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
-                0x00000998                DL_FlashCTL_programMemoryFromRAM32
+                0x0000099c       0x2c C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
+                0x0000099c                DL_FlashCTL_programMemoryFromRAM32
  .text.DL_FlashCTL_programMemoryFromRAM64
-                0x000009c4       0x34 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
-                0x000009c4                DL_FlashCTL_programMemoryFromRAM64
+                0x000009c8       0x34 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
+                0x000009c8                DL_FlashCTL_programMemoryFromRAM64
  .text.DL_FlashCTL_unprotectSector
-                0x000009f8      0x128 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
-                0x000009f8                DL_FlashCTL_unprotectSector
+                0x000009fc      0x128 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
+                0x000009fc                DL_FlashCTL_unprotectSector
  .text.DL_UART_init
-                0x00000b20       0x48 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
-                0x00000b20                DL_UART_init
+                0x00000b24       0x48 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x00000b24                DL_UART_init
  .text.DL_UART_setClockConfig
-                0x00000b68       0x14 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
-                0x00000b68                DL_UART_setClockConfig
+                0x00000b6c       0x14 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+                0x00000b6c                DL_UART_setClockConfig
  .text.__libc_init_array
-                0x00000b7c       0x44 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
-                0x00000b7c                __libc_init_array
- .text.memcpy   0x00000bc0       0xa4 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-memcpy-stub.o)
-                0x00000bc0                memcpy
- *fill*         0x00000c64        0x4 
+                0x00000b80       0x44 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                0x00000b80                __libc_init_array
+ .text.memcpy   0x00000bc4       0xa4 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-memcpy-stub.o)
+                0x00000bc4                memcpy
  .text.memcpy.__stub
                 0x00000c68       0x10 linker stubs
                 0x00000c78                . = ALIGN (0x8)
- *fill*         0x00000c78        0x0 
  *(.ctors)
                 0x00000c78                . = ALIGN (0x8)
  *(.dtors)
@@ -486,7 +484,7 @@ LOAD ./utils/checksum.o
 .igot.plt       0x20000038        0x0 load address 0x00000cc0
  .igot.plt      0x20000038        0x0 ./ti_msp_dl_config.o
 
-.bss            0x20000038       0x88
+.bss            0x20000038       0xa0
                 0x20000038                __bss_start__ = .
  *(.shbss)
  *(.bss)
@@ -513,29 +511,29 @@ LOAD ./utils/checksum.o
                 0x20000039        0x1 ./src/bootloader.o
                 0x20000039                sys_state
  *fill*         0x2000003a        0x2 
- .bss.rx_buf    0x2000003c       0x80 ./src/hal_uart.o
+ .bss.rx_buf    0x2000003c       0x94 ./src/hal_uart.o
  .bss.rx_buf_cnt
-                0x200000bc        0x1 ./src/hal_uart.o
+                0x200000d0        0x1 ./src/hal_uart.o
  *(COMMON)
-                0x200000c0                . = ALIGN (0x8)
- *fill*         0x200000bd        0x3 
-                0x200000c0                __bss_end__ = .
+                0x200000d8                . = ALIGN (0x8)
+ *fill*         0x200000d1        0x7 
+                0x200000d8                __bss_end__ = .
 
-.noinit         0x200000c0        0x0
+.noinit         0x200000d8        0x0
  *(*.noinit*)
-                0x200000c0                . = ALIGN (0x8)
+                0x200000d8                . = ALIGN (0x8)
 
-.heap           0x200000c0        0x0
-                0x200000c0                __heap_start__ = .
-                0x200000c0                end = __heap_start__
-                0x200000c0                _end = end
-                0x200000c0                __end = end
+.heap           0x200000d8        0x0
+                0x200000d8                __heap_start__ = .
+                0x200000d8                end = __heap_start__
+                0x200000d8                _end = end
+                0x200000d8                __end = end
  *(.heap)
-                0x200000c0                __heap_end__ = .
-                0x200000c0                __HeapLimit = __heap_end__
+                0x200000d8                __heap_end__ = .
+                0x200000d8                __HeapLimit = __heap_end__
 
-.stack          0x200000c0        0x0
-                0x200000c0                _stack = .
+.stack          0x200000d8        0x0
+                0x200000d8                _stack = .
  *(.stack)
 
 .BCRConfig
@@ -627,18 +625,18 @@ OUTPUT(bootloader.out elf32-littlearm)
  .debug_ranges  0x000001b0     0x17c0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
  .debug_ranges  0x00001970      0x370 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
-.debug_line     0x00000000     0x6273
+.debug_line     0x00000000     0x6275
  .debug_line    0x00000000      0x61c ./ti_msp_dl_config.o
  .debug_line    0x0000061c      0x16c ./startup_mspm0c110x_gcc.o
- .debug_line    0x00000788      0x584 ./src/bootloader.o
- .debug_line    0x00000d0c      0x3a5 ./src/hal_bld.o
- .debug_line    0x000010b1      0x54c ./src/hal_flash.o
- .debug_line    0x000015fd        0x0 ./src/hal_gpio.o
- .debug_line    0x000015fd      0x639 ./src/hal_uart.o
- .debug_line    0x00001c36      0x17b ./utils/checksum.o
- .debug_line    0x00001db1      0x3b7 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
- .debug_line    0x00002168     0x32c8 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
- .debug_line    0x00005430      0xe43 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
+ .debug_line    0x00000788      0x586 ./src/bootloader.o
+ .debug_line    0x00000d0e      0x3a5 ./src/hal_bld.o
+ .debug_line    0x000010b3      0x54c ./src/hal_flash.o
+ .debug_line    0x000015ff        0x0 ./src/hal_gpio.o
+ .debug_line    0x000015ff      0x639 ./src/hal_uart.o
+ .debug_line    0x00001c38      0x17b ./utils/checksum.o
+ .debug_line    0x00001db3      0x3b7 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_line    0x0000216a     0x32c8 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_flashctl.o)
+ .debug_line    0x00005432      0xe43 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_uart.o)
 
 .debug_str      0x00000000     0x406a
  .debug_str     0x00000000     0x1f9c ./ti_msp_dl_config.o

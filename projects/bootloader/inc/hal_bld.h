@@ -21,7 +21,7 @@ typedef enum {
     CMD_WRITE,
     CMD_ERASE,
     CMD_UPLOADING,
-    CMD_CHECK_CRC_MODE,
+    CMD_CRC_CHECK,
     CMD_SYSRST,
     CMD_EXIT_BLD,
     CMD_NUM,
