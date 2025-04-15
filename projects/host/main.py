@@ -196,7 +196,7 @@ def cmd_upload_file(uart_port: serial.Serial):
 def cmd_check_crc(uart_port: serial.Serial):
     addr = 0x1800
     size = 0x400
-    if dl_bld_check_crc(uart_port, addr, size, 1):
+    if dl_bld_check_img_crc(uart_port, addr, size, 1):
         print("CRC check success")
     else:
         print("CRC check failed")

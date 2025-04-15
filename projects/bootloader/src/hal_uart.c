@@ -5,6 +5,7 @@
 #include "inc/hal_uart.h"
 
 #include "utils/checksum.h"
+#include "utils/crc.h"
 
 extern volatile bld_state_e sys_state;
 
@@ -53,7 +54,16 @@ void hal_uart_burst_write(UART_Regs *const reg, uint8_t *data, uint8_t size) {
 bld_cmd_e hal_uart_read_cmd(void) {
 
   /* Verify rx data*/
-  if (rx_buf[rx_buf_cnt - 1] != calc_checksum(rx_buf, rx_buf_cnt - 1)) {
+  
+  // in case of crc
+  if (rx_buf[1] == CMD_WRITE_CRC) {
+    uint32_t crc_result = crc32_lookup_tb(0, rx_buf_cnt - 4, rx_buf);
+    for (int i = 0; i < 4; i++) {
+      if (rx_buf[rx_buf_cnt - 1 - i] != ((crc_result >> (8 * i)) & 0xFF)) {
+        return CMD_UNDEFINED;
+      }
+    }
+  } else if (rx_buf[rx_buf_cnt - 1] != calc_checksum(rx_buf, rx_buf_cnt - 1)) {
     return CMD_UNDEFINED;
   }
 
@@ -65,7 +75,7 @@ bld_cmd_e hal_uart_read_cmd(void) {
 void hal_uart_resp(UART_Regs *const reg, uint8_t *data, uint8_t size) {
   uint8_t tx_buf[size + 2];
 
-  tx_buf[0] = size + 2; // add len to the packet
+  tx_buf[0] = size + 2;                // add len to the packet
   for (uint8_t i = 0; i < size; i++) { // move data buffer up 1 element
     tx_buf[i + 1] = data[i];
   }

@@ -1,18 +1,19 @@
+#################################################################################
+# CRC32 and CRC16 checksum calculation functions
+# How CRC works:
+# https://www.youtube.com/watch?v=izG7qT0EpBw&ab_channel=BenEater
+##################################################################################
 import binascii
 
 
-def crc16(data):
-    '''
-    CRC-16 (CCITT) implemented with a precomputed lookup table
-    '''
-    if type(data) == list:
-        _data = ''
-        for e in data:
-            _data += '{:02x}'.format(e)
-        data = binascii.unhexlify(_data)
-    elif type(data) == bytes:
-        data = data
-    table = [
+################################################################################
+#
+# CRC16 and 32 with lookup table
+# Note: For faster calculation, use lookup table method
+# Downside: takes up 512 bytes of memory for CRC16 and 1024 bytes for CRC32
+################################################################################
+class CRCTable:
+    crc16 = [
         0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
         0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,
         0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072, 0x0050, 0x8055, 0x805F,
@@ -43,36 +44,7 @@ def crc16(data):
         0x022A, 0x823B, 0x023E, 0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219,
         0x0208, 0x820D, 0x8207, 0x0202
     ]
-
-    crc = 0
-    for byte in data:
-        crc = table[((crc >> 8) ^ byte) & 0xFF] ^ (crc << 8)
-    crc = ((crc ^ 0) & ((1 << 16) - 1))
-    return crc
-
-
-def crc32(data, CrcInit=0):
-    '''
-    CRC-32 implemented with a precomputed lookup table
-    '''
-    print(f"Calculating CRC32, input type is {type(data)}")
-    if isinstance(data, list):
-        _data = ''
-        for e in data:
-            _data += '{:02x}'.format(e)
-            print(f"data: {e}, hex: {_data}")
-        data = binascii.unhexlify(_data)
-    elif isinstance(data, bytes):
-        data = data
-    elif isinstance(data, str):
-        _data = []
-        for e in data:
-            _data.append(ord(e))
-        data = _data
-
-    print(data)
-
-    table = [
+    crc32 = [
         0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F,
         0xE963A535, 0x9E6495A3, 0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988,
         0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
@@ -118,8 +90,57 @@ def crc32(data, CrcInit=0):
         0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
     ]
 
+
+def crc16_lookup_tb(data):
+    '''
+    CRC-16 (CCITT) implemented with a precomputed lookup table
+    '''
+    if type(data) == list:
+        _data = ''
+        for e in data:
+            _data += '{:02x}'.format(e)
+        data = binascii.unhexlify(_data)
+    elif type(data) == bytes:
+        data = data
+    table = CRCTable.crc16
+
+    crc = 0
+    for byte in data:
+        crc = table[((crc >> 8) ^ byte) & 0xFF] ^ (crc << 8)
+    crc = ((crc ^ 0) & ((1 << 16) - 1))
+    return crc
+
+
+def crc32_lookup_tb(data, CrcInit=0):
+    '''
+    CRC-32 implemented with a precomputed lookup table
+    '''
+    print(f"Calculating CRC32, input type is {type(data)}")
+    if isinstance(data, list):
+        _data = ''
+        for e in data:
+            _data += '{:02x}'.format(e)
+            print(f"data: {e}, hex: {_data}")
+        data = binascii.unhexlify(_data)
+    elif isinstance(data, bytes):
+        data = data
+    elif isinstance(data, str):
+        _data = []
+        for e in data:
+            _data.append(ord(e))
+        data = _data
+
+    print(data)
+
+    table = CRCTable.crc32
+
     crc = CrcInit ^ 0xFFFFFFFF
     for byte in data:
         crc = table[(int(crc) ^ byte) & 0xFF] ^ (crc >> 8)
     crc = crc ^ 0xFFFFFFFF
     return crc
+
+
+#
+# Data type conversion functions
+################################################################################

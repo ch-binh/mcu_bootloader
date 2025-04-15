@@ -1,14 +1,11 @@
 import serial
 import os
+import time
 
 from common.ret_no import ERRNO
 from utils.checksum import checksum_calc
 
-IMAGE_TAG = 0xD1B45E82
-IMAGE_START = 0x00002000
-IMAGE_SIZE = 0x0000068A
-IMAGE_CRC = 0x1C18B4D5
-IMAGE_JUMP_ADDR = 0x00002000
+
 
 RQ_KEY = 0x84AE9B23
 RES_KEY = 0x18E2B8AC
@@ -82,9 +79,6 @@ class Res_cmd():
     RES_APP_FLASH_DIRTY = ord('1')  # main application flash is dirty
 
 
-
-
-
 def dl_uart_init() -> serial.Serial:
     """Open the UART port."""
     uart_inst = None
@@ -131,202 +125,6 @@ def dl_uart_write(uart_port: serial.Serial, data: list) -> None:
         else:
             uart_port.write(bytes([byte]))
 
-
-def is_sent_success(uart_port) -> bool:
-    """
-    Check if the transmission was successful by reading the MCU's response.
-
-    Args:
-        COM (object): The COM port object used for communication.
-
-    Returns:
-        bool: True if the response indicates success, False otherwise.
-    """
-    global error_count
-    read_success_flag = 0
-
-    msp_res = ''
-    try:
-        if read_success_flag != 1:
-            # waiting for data to come
-            timeout_counter = 0
-            while not uart_port.in_waiting:
-                # if dont have data to read yet, set timeout
-                timeout_counter += 1
-                if timeout_counter >= 1500000:
-                    print("Reading UART timeout. Exiting...")
-                    exit()
-
-            msp_res = uart_port.read(uart_port.in_waiting)
-
-            if len(msp_res) == 1:
-                msp_res = ord(msp_res)
-            else:
-                msp_res = ord(chr(msp_res[len(msp_res) - 1]))
-
-        else:
-            return True
-
-    except ValueError:
-        ticks = 0
-        while (ticks < READ_RES_SPEED):
-            ticks += 1
-        # if read catch NULL, try read again, if fail return fail values
-        if is_sent_success(uart_port):
-            read_success_flag = 1  # return to main app right away
-            return True
-        else:
-            return False
-
-    else:
-        match msp_res:
-            case Res_cmd.RES_DOWNLOAD_INPROG:
-                print(f"Response: please wait: {msp_res}")
-                # response indicates please wait, add ticks
-
-                while not is_sent_success(uart_port):
-                    print("res code = 3 -> Waiting")
-
-                return True
-
-            case Res_cmd.RES_WRITE_DATA_FAIL:
-                print(
-                    f"Response: fail: {msp_res}. Re-send data, tries: {error_count}"
-                )
-                error_count += 1
-                if error_count == NUMBER_OF_ATTEMPTS:
-                    print("Exceed number of attempts")
-                    exit()
-                return False
-
-            case Res_cmd.RES_WRITE_DATA_SUCCESS:
-                error_count = 0
-                return True
-
-            case Res_cmd.RES_CRC_SUCCESS:
-                error_count = 0
-                print("Response: CRC success")
-                return True
-
-            case Res_cmd.RES_CRC_FAIL:
-                print("Response: CRC Fail!!!")
-                return False
-
-            case Res_cmd.RES_ERASE_COMPLETE:
-                error_count = 0
-                print("Response: Erase complete")
-                return True
-
-            case Res_cmd.RES_APP_FLASH_CLEAN:
-                error_count = 0
-                print("Response: Memory is clean")
-                return True
-
-            case Res_cmd.RES_APP_FLASH_DIRTY:
-                print("Response: Memory is NOT erased")
-                return False
-
-            case Res_cmd.RES_ENTER_BLD_SUCCESS:
-                print("Response: Enter Bootloader success")
-                return True
-
-            case Res_cmd.RES_ENTER_BLD_FAIL:
-                print("Response: Enter Bootloader fail")
-                return False
-
-            case Res_cmd.RES_EXIT_BLD_SUCCESS:
-                print("Response: Exit Bootloader success")
-                return True
-
-            case Res_cmd.RES_EXIT_BLD_FAIL:
-                print("Response: Exit Bootloader fail")
-                return False
-
-            case _:
-                print("Response: Receive unknown response: ", msp_res)
-                error_count += 1
-                if error_count == NUMBER_OF_ATTEMPTS:
-                    print("Reach maximum number of retries. Exiting...")
-                    exit()
-
-
-def send_crc_cmd(uart_port, s_adr, size, crc: int) -> None:
-    """
-    Check crc of memory range based on starting address and memory length
-
-    Notes: Data sent including:
-        1 cmd byte
-        4 address bytes
-        4 memory size bytes
-        4 crc bytes (crc32)
-        1checksum byte
-
-    Args:
-        COM (object): The COM port object used for communication.
-        s_adr (int/str): Start address of the memory range that to be checked
-        size (int/str): Size of data to be checked
-        crc (int): Crc value to be checked
-    """
-    # send commmand
-    dl_uart_write(uart_port, RqCmd.RQ_CHECK_CRC_MODE)
-
-    # prepare to send data
-    if type(s_adr) == str:
-        # send start address of memory
-        for i in range(4):
-            dl_uart_write(uart_port, int(s_adr[i * 2:i * 2 + 2], base=16))
-        # send size of memory range that want to be erased
-        for i in range(4):
-            dl_uart_write(uart_port, int(size[i * 2:i * 2 + 2], base=16))
-        for i in range(4):
-            dl_uart_write(uart_port, int(crc[i * 2:i * 2 + 2], base=16))
-
-        # send checksum
-        data_str = s_adr + size + crc
-        checksum = calculate_checksum_2byte(data_str)
-        dl_uart_write(uart_port, checksum)
-
-    # send size of memory range that want to be check
-    if type(s_adr) == int:
-        adr_list = [None] * 4
-        size_list = [None] * 4
-        crc_list = [None] * 4
-
-        # convert from int to int list
-        adr_list[0] = s_adr >> 24
-        adr_list[1] = s_adr >> 16 & 0xFF
-        adr_list[2] = s_adr >> 8 & 0xFF
-        adr_list[3] = s_adr & 0xFF
-
-        size_list[0] = size >> 24
-        size_list[1] = size >> 16 & 0xFF
-        size_list[2] = size >> 8 & 0xFF
-        size_list[3] = size & 0xFF
-
-        crc_list[0] = crc >> 24
-        crc_list[1] = crc >> 16 & 0xFF
-        crc_list[2] = crc >> 8 & 0xFF
-        crc_list[3] = crc & 0xFF
-
-        # send byte element in list
-        for e in adr_list:
-            dl_uart_write(uart_port, e)
-        for e in size_list:
-            dl_uart_write(uart_port, e)
-        for e in crc_list:
-            dl_uart_write(uart_port, e)
-
-        # calculate checksum
-        data_str = []
-        for i in range(4):
-            data_str.append(str(adr_list[i]))
-        for i in range(4):
-            data_str.append(str(size_list[i]))
-        for i in range(4):
-            data_str.append(str(crc_list[i]))
-
-        checksum = checksum_calc(data_str)
-        dl_uart_write(uart_port, checksum)
 
 
 def send_enter_bld_cmd(uart_port, rq_key: int = RQ_KEY) -> None:
@@ -454,40 +252,33 @@ def read_exit_bld_response(uart_port) -> bool:
                     return False
 
 
-
-def delay_tick(time: int) -> None:
-    """
-    Simple delay function that simulates a delay for a specified number of ticks.
-
-    Args:
-        time (int): The number of ticks to delay.
-    """
-    tick = 0
-    while (tick <= time):
-        tick += 1
-
-
 def dl_uart_read_resp(uart_port: serial.Serial) -> bytearray:
+    # Scan UART buffer for incoming data
+    time_out = 0
+    while not uart_port.in_waiting:
+        time.sleep(0.01)
+        time_out += 1
+        if time_out == 100:
+            print("timeout")
+            return 0
+
+    # if catched data
     try:
         rx_buf = uart_port.read(uart_port.in_waiting)
     except ValueError:
         print("catch value error")
 
-    if dl_uart_check_rx_buf_intergity(rx_buf):
+    # check data integrity and return if data is valid
+    if dl_uart_check_rx_buf_integrity(rx_buf):
         return rx_buf[1:len(rx_buf) - 1]
 
-    return None
+    return 0
+
 
 @staticmethod
-def dl_uart_check_rx_buf_intergity(rx_buf: bytearray) -> bool:
+def dl_uart_check_rx_buf_integrity(rx_buf: bytearray) -> bool:
     """
     Check the integrity of the received buffer by verifying its length and checksum.
-
-    Args:
-        rx_buf (bytearray): The received buffer.
-
-    Returns:
-        bool: True if the buffer length is valid, False otherwise.
     """
 
     # Check if the buffer is empty or too short

@@ -6,6 +6,7 @@
 "./src/hal_gpio.o"
 "./src/hal_uart.o"
 "./utils/checksum.o"
+"./utils/crc.o"
 -Wl,-T"../device_linker.lds"
 -Wl,-Tdevice.lds.genlibs
 -lgcc

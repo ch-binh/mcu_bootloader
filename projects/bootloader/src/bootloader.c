@@ -4,6 +4,8 @@
 #include "inc/hal_gpio.h"
 #include "inc/hal_uart.h"
 
+#include "utils/crc.h"
+
 /**
  *  VARIABLES AND DEFINE
  *===================================================================
@@ -16,6 +18,8 @@ volatile bld_cmd_e host_cmd = CMD_NOP;
  *  APPLICATION OPERATIONS
  *===================================================================
  */
+
+uint32_t debug_var = 111;
 
 static void bld_exe_cmd(void) {
   uint8_t rx_buffer[UART_RX_LEN_MAX];
@@ -53,14 +57,20 @@ static void bld_exe_cmd(void) {
       }
     }
   } break;
+  case CMD_WRITE:
+  case CMD_WRITE_CRC: {
+    uint8_t byte_ofs = 0;
+    if (host_cmd == CMD_WRITE_CRC) {
+      byte_ofs = COR_BYTE_OFS; // shared code for when correction code can be
+                               // checksum (1byte) or crc32bit (4 bytes)
+    }
 
-  case CMD_WRITE: {
     for (int i = 0; i < 4; i++) {
       addr |= rx_buffer[2 + i] << (24 - i * 8);
     }
 
     uint32_t write_buffer = 0x00;
-    for (int i = 0; i < rx_buffer[0] - 8; i += 4) {
+    for (int i = 0; i < rx_buffer[0] - (8 + byte_ofs); i += 4) {
       for (int j = 0; j < 4; j++) {
         write_buffer |= rx_buffer[6 + i + j] << (24 - j * 8);
       }
@@ -68,13 +78,32 @@ static void bld_exe_cmd(void) {
       write_buffer = 0x00;
     }
 
-    if (rx_buffer[rx_buffer[0] - 2] == REQ_ACK) {
+    if (rx_buffer[rx_buffer[0] - (2 + byte_ofs)] == REQ_ACK) {
       uint8_t ret = 0x01;
       hal_uart_resp(UART_0_INST, (uint8_t *)&ret, sizeof(ret));
     }
+
   } break;
 
   case CMD_CRC_CHECK: {
+    uint32_t ref_crc = 0;
+    for (int i = 0; i < 4; i++) {
+      addr |= rx_buffer[2 + i] << (24 - i * 8);
+      size |= rx_buffer[6 + i] << (24 - i * 8);
+      ref_crc |= rx_buffer[10 + i] << (24 - i * 8);
+    }
+
+    uint32_t calc_crc = crc32_lookup_tb(0, size, (uint8_t *)(addr));
+
+    uint8_t ret;
+    if (calc_crc != ref_crc) {
+      ret = 0x00;
+    }
+
+    if (rx_buffer[rx_buffer[0] - 2] == REQ_ACK) {
+      ret = 0x01;
+      hal_uart_resp(UART_0_INST, (uint8_t *)&ret, sizeof(ret));
+    }
 
   } break;
 

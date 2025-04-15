@@ -79,7 +79,8 @@ src/bootloader.o: ../src/bootloader.c \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_flash.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_gpio.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/crc.h
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
 
@@ -238,3 +239,5 @@ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_gpio.h:
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/crc.h:

@@ -18,6 +18,7 @@ ORDERED_OBJS += \
 "./src/hal_gpio.o" \
 "./src/hal_uart.o" \
 "./utils/checksum.o" \
+"./utils/crc.o" \
 -Wl,-T"../device_linker.lds" \
 $(GEN_CMDS__FLAG) \
 -Wl,-Tdevice.lds.genlibs \
@@ -168,8 +169,8 @@ bootloader.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_flash.o" "src\hal_gpio.o" "src\hal_uart.o" "utils\checksum.o" 
-	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_flash.d" "src\hal_gpio.d" "src\hal_uart.d" "utils\checksum.d" 
+	-$(RM) "ti_msp_dl_config.o" "startup_mspm0c110x_gcc.o" "src\bootloader.o" "src\hal_bld.o" "src\hal_flash.o" "src\hal_gpio.o" "src\hal_uart.o" "utils\checksum.o" "utils\crc.o" 
+	-$(RM) "ti_msp_dl_config.d" "startup_mspm0c110x_gcc.d" "src\bootloader.d" "src\hal_bld.d" "src\hal_flash.d" "src\hal_gpio.d" "src\hal_uart.d" "utils\checksum.d" "utils\crc.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

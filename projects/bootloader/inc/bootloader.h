@@ -28,6 +28,12 @@ typedef enum {
   BLD_FINISH
 } bld_state_e;
 
+#define CRC_BYTE_MUM 4
+#define CS_BYTE_NUM 1
+#define COR_BYTE_OFS (CRC_BYTE_MUM - CS_BYTE_NUM)
+
+
+
 /**
  *  FUNCTIONS
  *===================================================================

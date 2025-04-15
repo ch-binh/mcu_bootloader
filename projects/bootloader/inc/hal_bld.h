@@ -19,6 +19,7 @@ typedef enum {
     CMD_GET_BLD_VER,
     CMD_CHECK_BLANKING,
     CMD_WRITE,
+    CMD_WRITE_CRC,
     CMD_ERASE,
     CMD_UPLOADING,
     CMD_CRC_CHECK,

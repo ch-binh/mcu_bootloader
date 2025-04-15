@@ -77,7 +77,8 @@ src/hal_uart.o: ../src/hal_uart.c \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h \
  D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h \
- D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h \
+ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/crc.h
 
 C:/ti/mspm0_sdk_2_04_00_06/source/ti/driverlib/m0p/dl_core.h:
 
@@ -232,3 +233,5 @@ D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/bootloader.h:
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_uart.h:
 
 D:/PersonalProjects/mspm0_bootloader/projects/bootloader/inc/hal_bld.h:
+
+D:/PersonalProjects/mspm0_bootloader/projects/bootloader/utils/crc.h:

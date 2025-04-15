@@ -3,7 +3,7 @@ import time
 from dl_hexf import ImageInfo, dl_hexf_read_file
 from dl_uart import *
 from utils.checksum import *
-from utils.crc32 import crc32
+from utils.crc import crc32_lookup_tb
 
 #
 # VARIABLES AND DEFINES
@@ -30,11 +30,12 @@ class Cmd():
     CMD_GET_BLD_VER = 0x02
     CMD_CHECK_BLANKING = 0x03
     CMD_WRITE = 0x04
-    CMD_ERASE = 0x05
-    CMD_UPLOAD = 0x06
-    CMD_CHECK_CRC_MODE = 0x07
-    CMD_SYSRST = 0x08
-    CMD_EXIT_BLD = 0x09
+    CMD_WRITE_CRC = 0x05
+    CMD_ERASE = 0x06
+    CMD_UPLOAD = 0x07
+    CMD_CHECK_IMAGE_CRC = 0x08
+    CMD_SYSRST = 0x09
+    CMD_EXIT_BLD = 0x0A
     CMD_NUM = 0x0A
     CMD_UNDEFINED = 0xFF
 
@@ -46,8 +47,12 @@ class Cmd():
 # They are utility functions that can be used independently.
 #============================================================================
 @staticmethod
-def dl_bld_prep_packet(length: int, cmd: int, data: list,
-                       req_ack: int) -> bytearray:
+def dl_bld_prep_packet(length: int,
+                       cmd: int,
+                       data: list,
+                       csum: int = 1,
+                       crc32: int = 0,
+                       req_ack: int = 0) -> bytearray:
     """
     Prepare a packet to be sent over UART.
 
@@ -56,12 +61,21 @@ def dl_bld_prep_packet(length: int, cmd: int, data: list,
         cmd (int): Command identifier byte.
         data (list): List of data bytes to include in the packet.
         req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
-
+        csum (int): Checksum flag (1 to include checksum, 0 otherwise).
+        crc32 (int): CRC32 flag (1 to include CRC32, 0 otherwise).
+        
     Returns:
         bytearray: The prepared packet.
     """
+
     packet = [length, cmd] + data + [req_ack]
-    packet.append(checksum_calc(packet))
+    # recommendation, if length is > 64 bytes using crc
+    if crc32:
+        crc = crc32_lookup_tb(packet)
+        packet.extend((crc >> (24 - i * 8)) & 0xFF for i in range(4))
+    elif csum:
+        packet.append(checksum_calc(packet))
+
     return bytearray(packet)
 
 
@@ -91,6 +105,7 @@ def dl_bld_get_version(uart_port: serial.Serial) -> bytearray:
     tx_buf = dl_bld_prep_packet(length=4,
                                 cmd=Cmd.CMD_GET_BLD_VER,
                                 data=[],
+                                csum=1,
                                 req_ack=1)
 
     # Send the command over UART
@@ -134,6 +149,7 @@ def dl_bld_blanking(uart_port: serial.Serial,
     tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
                                 cmd=Cmd.CMD_CHECK_BLANKING,
                                 data=packet_data,
+                                csum=1,
                                 req_ack=req_ack)
     dl_uart_write(uart_port, tx_buf)
 
@@ -181,12 +197,12 @@ def dl_bld_write(uart_port: serial.Serial,
     tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
                                 cmd=Cmd.CMD_WRITE,
                                 data=packet_data,
+                                csum=1,
                                 req_ack=req_ack)
     dl_uart_write(uart_port, tx_buf)
 
     # Handle response
     if req_ack == 1:
-        time.sleep(Def.WAIT_TIME)
         resp = dl_uart_read_resp(uart_port)
         return resp[0]  # ACK 1 or 0
 
@@ -230,6 +246,7 @@ def dl_bld_erase(uart_port: serial.Serial,
     tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
                                 cmd=Cmd.CMD_ERASE,
                                 data=packet_data,
+                                csum=1,
                                 req_ack=req_ack)
     dl_uart_write(uart_port, tx_buf)
 
@@ -264,41 +281,63 @@ def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
 
     # Prepare the transmit buffer
     chunk_size = 128  # 128 bytes
-    image_size = image_info.e_addr - image_info.s_addr
-    num_of_packets = int(image_size / chunk_size) + 1 # last packet may be smaller than 128 bytes
-    
+    image_size = image_info.e_addr - image_info.s_addr + 1
+    num_of_packets = int(
+        image_size /
+        chunk_size) + 1  # last packet may be smaller than 128 bytes
+
     # 1. Clear the flash image
     print("Uploading file: Cleaning flash image...")
     start_addr = image_info.main_addr + image_info.s_addr
-    # if not dl_bld_erase(uart_port, start_addr, image_size, 1):
-    #     print("Image cleaning failed")
-    #     return 0
+    if not dl_bld_erase(uart_port, start_addr, image_size, 1):
+        print("Image cleaning failed")
+        return 0
     print("Uploading file: Cleaning flash image success")
 
     # 2. Send write command
     print("Uploading file: writing flash image...")
+    
     for i in range(num_of_packets):
-        # init
-        packet_data = []
-        # add address
-        write_addr = (image_info.main_addr << 16) + image_info.s_addr + chunk_size * i
-        packet_data.extend(
-            (write_addr >> (24 - i * 8)) & 0xFF for i in range(4))
+        num_of_attempt = 0
+        while(1):
+            num_of_attempt += 1
+            packet_data = []
+            # add address
+            write_addr = (
+                image_info.main_addr << 16) + image_info.s_addr + chunk_size * i
+            packet_data.extend(
+                (write_addr >> (24 - i * 8)) & 0xFF for i in range(4))
 
-        # add data, rearrange data to big endian format
-        for j in range(0, chunk_size, 4):
-            for k in range(4):
-                packet_data.append(image_info.mem_buffer[(chunk_size * i) + j + 3 - k])
-            
-        tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
-                                    cmd=Cmd.CMD_WRITE,
-                                    data=packet_data,
-                                    req_ack=0)
+            # add data, rearrange data to big endian format
+            for j in range(0, chunk_size, 4):
+                for k in range(4):
+                    packet_data.append(image_info.mem_buffer[(chunk_size * i) + j +
+                                                            3 - k])
 
-        #dl_uart_write(uart_port, tx_buf)
-        
+            tx_buf = dl_bld_prep_packet(length=len(packet_data) + 7,
+                                        cmd=Cmd.CMD_WRITE_CRC,
+                                        data=packet_data,
+                                        crc32=1,
+                                        req_ack=1)
+
+            dl_uart_write(uart_port, tx_buf)
+
+            # Handle response
+
+            resp = dl_uart_read_resp(uart_port)
+            if num_of_attempt == 3:
+                print("Retry failed, abort")
+                exit()
+            if resp[0]:  # ACK return success
+                break
+            else:
+                print(f"Write @{write_addr} failed, retry: {num_of_attempt}")
+
+    print("Uploading file: write flash image success")
+
     # 3. CRC check
-    dl_bld_check_crc(uart_port, image_info.mem_buffer[:image_size])
+    dl_bld_check_img_crc(uart_port, start_addr, image_size,
+                         image_info.mem_buffer[:image_size])
 
     return
 
@@ -306,8 +345,45 @@ def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
 #
 # CMD 7: CHECK CRC
 #=====================================================================
-def dl_bld_check_crc(uart_port: serial.Serial, data: bytearray):
-    #convert byte array to 32bit
-    ret = crc32(data)
-    print(ret)
-    pass
+def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
+                         data: bytearray):
+    """
+    Send check image crc to MCU. Including starting address and size of memory to be erased.
+
+    Notes: Data sent includes:
+        1 length
+        1 cmd byte
+        4 address bytes
+        4 memory size bytes
+        4 crc32 result bytes
+        1 req ack byte
+        1 checksum byte
+        
+        
+    """
+    print(f"Check image crc: mem - {addr}, size - {size}, checking...")
+
+    crc_result = crc32_lookup_tb(data)
+    print("Crc results: ", crc_result)
+
+    packet_data = []
+    packet_data.extend((addr >> (24 - i * 8)) & 0xFF for i in range(4))
+    packet_data.extend((size >> (24 - i * 8)) & 0xFF for i in range(4))
+    packet_data.extend((crc_result >> (24 - i * 8)) & 0xFF for i in range(4))
+
+    tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
+                                cmd=Cmd.CMD_CHECK_IMAGE_CRC,
+                                data=packet_data,
+                                csum=1,
+                                req_ack=1)
+
+    dl_uart_write(uart_port, tx_buf)
+
+    # Handle response
+
+    resp = dl_uart_read_resp(uart_port)
+    if not resp[0]:  # ACK return fail
+        print("Debug here")
+        exit()
+
+    print(f"Check image crc: CRC correct")
