@@ -296,23 +296,23 @@ def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
 
     # 2. Send write command
     print("Uploading file: writing flash image...")
-    
+
     for i in range(num_of_packets):
         num_of_attempt = 0
-        while(1):
+        while (1):
             num_of_attempt += 1
             packet_data = []
             # add address
-            write_addr = (
-                image_info.main_addr << 16) + image_info.s_addr + chunk_size * i
+            write_addr = (image_info.main_addr <<
+                          16) + image_info.s_addr + chunk_size * i
             packet_data.extend(
                 (write_addr >> (24 - i * 8)) & 0xFF for i in range(4))
 
             # add data, rearrange data to big endian format
             for j in range(0, chunk_size, 4):
                 for k in range(4):
-                    packet_data.append(image_info.mem_buffer[(chunk_size * i) + j +
-                                                            3 - k])
+                    packet_data.append(image_info.mem_buffer[(chunk_size * i) +
+                                                             j + 3 - k])
 
             tx_buf = dl_bld_prep_packet(length=len(packet_data) + 7,
                                         cmd=Cmd.CMD_WRITE_CRC,
@@ -380,10 +380,33 @@ def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
     dl_uart_write(uart_port, tx_buf)
 
     # Handle response
-
     resp = dl_uart_read_resp(uart_port)
     if not resp[0]:  # ACK return fail
         print("Debug here")
         exit()
 
     print(f"Check image crc: CRC correct")
+
+
+#
+# CMD 9: EXIT BOOTLOADER
+#=====================================================================
+
+
+def dl_bld_exit(uart_port: serial.Serial):
+
+    print("Exit Bootloader: exiting...")
+    tx_buf = dl_bld_prep_packet(length=4,
+                                cmd=Cmd.CMD_EXIT_BLD,
+                                data=[],
+                                csum=1,
+                                req_ack=1)
+
+    dl_uart_write(uart_port, tx_buf)
+
+    # Handle response
+    resp = dl_uart_read_resp(uart_port)
+    if not resp[0]:  # ACK return fail
+        print("Debug here")
+        exit()
+    print("Exit Bootloader: exit ready and started")

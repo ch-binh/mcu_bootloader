@@ -123,7 +123,7 @@ def main() -> None:
         "6": lambda: cmd_upload_file(gUart),
         "7": lambda: cmd_check_crc(gUart),
         "8": lambda: print("No Operation (NOP)"),
-        "9": lambda: print("No Operation (NOP)"),
+        "9": lambda: cmd_exit_bld(gUart),
     }
 
     cmd_mode = input("0. No Operation (NOP)"
@@ -151,9 +151,11 @@ def main() -> None:
 #   COMMANDS FUCNTIONS
 #===========================================================================
 
+
 @staticmethod
 def cmd_get_bld_version_cb(uart_port: serial.Serial):
     print("Bootloader version is:", dl_bld_get_version(uart_port))
+
 
 @staticmethod
 def cmd_check_blanking_cb(uart_port: serial.Serial):
@@ -163,12 +165,14 @@ def cmd_check_blanking_cb(uart_port: serial.Serial):
         is {'clean' if dl_bld_blanking(uart_port, addr, size, 1) else 'not blank'}"
           )
 
+
 @staticmethod
 def cmd_write(uart_port: serial.Serial):
     addr = 0x1800
-    data = [0x01, 0x02, 0x03, 0x04, 0x05,
-            0x06, 0x07, 0x08, 0x09, 0x0A,
-            0x0B, 0x0C, 0x0D, 0x0E, 0x0F]
+    data = [
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
+        0x0D, 0x0E, 0x0F
+    ]
     if dl_bld_write(uart_port, addr, data, 1):
         print("Write success")
     else:
@@ -183,7 +187,8 @@ def cmd_erase(uart_port: serial.Serial):
         print("Erase success")
     else:
         print("Erase failed")
-        
+
+
 @staticmethod
 def cmd_upload_file(uart_port: serial.Serial):
     if dl_bld_upload_file(uart_port, SystemInfo.target_hex_file_addr):
@@ -196,14 +201,18 @@ def cmd_upload_file(uart_port: serial.Serial):
 def cmd_check_crc(uart_port: serial.Serial):
     addr = 0x1800
     size = 0x400
-    if dl_bld_check_img_crc(uart_port, addr, size, 1):
+    data = input("Input some data here: ")
+    if dl_bld_check_img_crc(uart_port, addr, size, data):
         print("CRC check success")
     else:
         print("CRC check failed")
-
-
-
-
+        
+        
+@staticmethod
+def cmd_exit_bld(uart_port: serial.Serial):
+    if dl_bld_exit(uart_port):
+        print("Exiting bootloader, enterring Application...")
+        exit()
 
 
 #===========================================================================

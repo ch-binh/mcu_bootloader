@@ -15,11 +15,27 @@ volatile bld_state_e sys_state = BLD_IDLE;
 volatile bld_cmd_e host_cmd = CMD_NOP;
 
 /**
- *  APPLICATION OPERATIONS
+ *  Enter application
  *===================================================================
  */
 
-uint32_t debug_var = 111;
+static bool is_enter_app_triggred(void) {
+  int ret;
+  /* Check if boot pin is selected */
+  if (!DL_GPIO_readPins(GPIOA_PORT, GPIOA_ENTER_BLD_PIN)) {
+    /* Verify if jumping address has been loaded */
+    ret = hal_bld_verify_app_mem(FLASH_MAIN_APP_ADDR);
+    if (!ret) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ *  APPLICATION OPERATIONS
+ *===================================================================
+ */
 
 static void bld_exe_cmd(void) {
   uint8_t rx_buffer[UART_RX_LEN_MAX];
@@ -86,6 +102,7 @@ static void bld_exe_cmd(void) {
   } break;
 
   case CMD_CRC_CHECK: {
+    /* 1. Fetch data from UART Buffer*/
     uint32_t ref_crc = 0;
     for (int i = 0; i < 4; i++) {
       addr |= rx_buffer[2 + i] << (24 - i * 8);
@@ -106,6 +123,11 @@ static void bld_exe_cmd(void) {
     }
 
   } break;
+  case CMD_EXIT_BLD: {
+    if (is_enter_app_triggred()) {
+      hal_bld_go_to_main_app(FLASH_MAIN_APP_ADDR);
+    }
+  } break;
 
   default:
     break;
@@ -116,22 +138,15 @@ static void bld_exe_cmd(void) {
  *  MAIN
  *===================================================================
  */
-
 int main(void) {
-  int ret;
+
   /* Power on GPIO, initialize pins as digital outputs */
   SYSCFG_DL_init();
   /* Init */
 
-  /* Check if boot pin is selected */
-  if (!DL_GPIO_readPins(GPIOA_PORT, GPIOA_ENTER_BLD_PIN)) {
-    /* Verify if jumping address has been loaded */
-    ret = hal_bld_verify_app_mem(FLASH_MAIN_APP_ADDR);
-    if (!ret) {
-      hal_bld_go_to_main_app(FLASH_MAIN_APP_ADDR);
-    }
+  if (is_enter_app_triggred()) {
+    hal_bld_go_to_main_app(FLASH_MAIN_APP_ADDR);
   }
-
   /*===============^^^================*/
   /* Instaying in bootloader */
 
