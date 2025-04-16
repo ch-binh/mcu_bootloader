@@ -1,27 +1,11 @@
 import time
 from dl_uart import *
 from common.memory_map import *
-
+from dl_file import *
 
 #
 # DEFINES AND VARIABLES
 #============================================================================
-
-
-
-class ImageInfo:
-    def __init__(self,
-                 flash_size=0x2000,
-                 main_addr=0x0000,
-                 cur_addr=0x0000,
-                 s_addr=0xFFFFFFFF,
-                 e_addr=0x00000000):
-        self.flash_size = flash_size
-        self.main_addr = main_addr
-        self.cur_addr = cur_addr
-        self.s_addr = s_addr
-        self.e_addr = e_addr
-        self.mem_buffer = [0xFF] * flash_size
 
 
 class IHexRecType:
@@ -42,7 +26,7 @@ _image_info = ImageInfo()
 #
 # Command functions: Only need this one
 #============================================================================
-def dl_hexf_read_file(file_path: str) -> ImageInfo:
+def dl_hexf_readf(file_path: str) -> ImageInfo:
     """
     Read and verify the hex file, and store the image in RAM.
     """
@@ -197,3 +181,6 @@ def dl_hexf_line_breakdown(line: str) -> list:
         start_symbol, data_length, address, record_type, data, checksum,
         end_of_line
     ]
+
+
+

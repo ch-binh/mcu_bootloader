@@ -89,7 +89,7 @@ void hal_uart_resp(UART_Regs *const reg, uint8_t *data, uint8_t size) {
  *===================================================================
  */
 
-void hal_uart_fetch_rx_buf(uint8_t *buf, uint8_t len) {
+void hal_uart_fetch_rx_buf(uint8_t *buf, uint16_t len) {
   if (len > UART_RX_LEN_MAX)
     len = UART_RX_LEN_MAX;
   memcpy(buf, rx_buf, len);

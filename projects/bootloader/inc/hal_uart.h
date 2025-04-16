@@ -9,7 +9,7 @@
  *  VARIABLES AND DEFINES
  *===================================================================
  */
-#define UART_RX_LEN_MAX 148
+#define UART_RX_LEN_MAX 256
 #define UART_END_BYTE 0xFE
 
 /**
@@ -38,7 +38,7 @@ void hal_uart_resp(UART_Regs *const reg, uint8_t *data, uint8_t size);
  *===================================================================
  */
 
-void hal_uart_fetch_rx_buf(uint8_t *buf, uint8_t len);
+void hal_uart_fetch_rx_buf(uint8_t *buf, uint16_t len);
 uint8_t hal_uart_fetch_rx_buf_cnt(void);
 
 /**

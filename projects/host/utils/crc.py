@@ -169,6 +169,7 @@ def crc32_lookup_tb(data: list[int], CrcInit=0):
         for e in data:
             _data += '{:02x}'.format(e)
         data = binascii.unhexlify(_data)
+        
     elif isinstance(data, bytes):
         data = data
     elif isinstance(data, str):

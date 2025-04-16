@@ -102,6 +102,9 @@ static void bld_exe_cmd(void) {
       uint8_t ret = 0x01;
       hal_uart_resp(UART_0_INST, (uint8_t *)&ret, sizeof(ret));
     }
+    else {
+        while(1);
+    }
 
   } break;
 
