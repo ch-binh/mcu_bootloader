@@ -22,7 +22,7 @@ typedef enum {
     CMD_WRITE_CRC,
     CMD_ERASE,
     CMD_UPLOADING,
-    CMD_CRC_CHECK,
+    CMD_IMAGE_CRC_VERIFY,
     CMD_SYSRST,
     CMD_EXIT_BLD,
     CMD_NUM,

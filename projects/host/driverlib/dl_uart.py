@@ -99,12 +99,19 @@ def dl_uart_write(uart_port: serial.Serial, data: list) -> None:
 
 
 def dl_uart_read_resp(uart_port: serial.Serial) -> bytearray:
+    """
+    This function reads rx buffer, including verifying len and checksum
+    
+    Return:
+        if data is available, return from bit 1 to n-1 (excluding length and checksum)
+        else return [0]
+    """
     # Scan UART buffer for incoming data
     time_out = 0
     while not uart_port.in_waiting:
-        time.sleep(0.01)
+        time.sleep(0.001) # as tested, 0.001 is min
         time_out += 1
-        if time_out == 100:
+        if time_out == 1000:
             print("timeout")
             return [0]
 

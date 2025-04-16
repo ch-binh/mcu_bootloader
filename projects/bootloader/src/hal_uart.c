@@ -56,7 +56,7 @@ bld_cmd_e hal_uart_read_cmd(void) {
   /* Verify rx data*/
   
   // in case of crc
-  if (rx_buf[1] == CMD_WRITE_CRC) {
+  if (rx_buf[1] == CMD_WRITE_CRC) {    
     uint32_t crc_result = crc32_lookup_tb(0, rx_buf_cnt - 4, rx_buf);
     for (int i = 0; i < 4; i++) {
       if (rx_buf[rx_buf_cnt - 1 - i] != ((crc_result >> (8 * i)) & 0xFF)) {

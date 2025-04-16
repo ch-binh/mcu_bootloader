@@ -75,6 +75,10 @@ static void bld_exe_cmd(void) {
   } break;
   case CMD_WRITE:
   case CMD_WRITE_CRC: {
+    /* Note: Write with CRC will have data packet of ~ 128 bytes, so I use CRC32
+     * here (better be crc16 but whatever, flash space is smol)
+     * CMD Write is meant for test/write small data
+     */
     uint8_t byte_ofs = 0;
     if (host_cmd == CMD_WRITE_CRC) {
       byte_ofs = COR_BYTE_OFS; // shared code for when correction code can be
@@ -101,7 +105,10 @@ static void bld_exe_cmd(void) {
 
   } break;
 
-  case CMD_CRC_CHECK: {
+  case CMD_IMAGE_CRC_VERIFY: {
+    /**
+     * This command is meant for flash image crc check
+     */
     /* 1. Fetch data from UART Buffer*/
     uint32_t ref_crc = 0;
     for (int i = 0; i < 4; i++) {
@@ -125,6 +132,7 @@ static void bld_exe_cmd(void) {
   } break;
   case CMD_EXIT_BLD: {
     if (is_enter_app_triggred()) {
+      hal_uart_resp(UART_0_INST, (uint8_t *)(0x01), 1);
       hal_bld_go_to_main_app(FLASH_MAIN_APP_ADDR);
     }
   } break;
@@ -151,7 +159,6 @@ int main(void) {
   /* Instaying in bootloader */
 
   hal_uart_en_irq();
-  // DL_SYSCTL_enableSleepOnExit();
 
   while (1) {
     switch (sys_state) {

@@ -4,10 +4,63 @@ from dl_hexf import ImageInfo, dl_hexf_read_file
 from dl_uart import *
 from utils.checksum import *
 from utils.crc import crc32_lookup_tb
+from utils.measure import measure_exe_time
 
 #
 # VARIABLES AND DEFINES
 #============================================================================
+
+
+class FileInfo:
+    files = []
+    fpath = ""
+    origin_dir = "../../Release"
+
+    #============================Selecting Hex Files================================#
+    @classmethod
+    def scan_files(cls):
+        """Scans for .hex, .bin, .elf files in the specified directory."""
+
+        print("=" * 40)
+        print("2. Listing all available bin or hex files")
+        print("-" * 40 + "\n")
+        if not os.path.exists(cls.origin_dir):
+            print(f"Error: Directory '{cls.origin_dir}' does not exist.")
+            return None
+
+        cls.files = [
+            f for f in os.listdir(cls.origin_dir)
+            if f.endswith(".hex") or f.endswith(".bin")
+        ]
+
+        if not cls.files:
+            print("No files found in", cls.origin_dir)
+            return None
+
+        print(f"Found {len(cls.files)} files in \"{cls.origin_dir}\":")
+        for idx, file in enumerate(cls.files, start=0):
+            print(f"{idx}. {file}")
+
+    @classmethod
+    def select_files(cls):
+        print("--- Select file ---")
+        print("Instruction: type \"1\" to select file no. 1")
+
+        while True:
+            try:
+                idx = int(input("Input number: "))
+                if 0 <= idx < len(cls.files):
+                    break
+                else:
+                    print(
+                        f"Invalid input, please enter a number between 0 and {len(cls.files) - 1}."
+                    )
+            except ValueError:
+                print("Invalid input, please enter a valid number.")
+
+        cls.fpath = os.path.abspath(f"{cls.origin_dir}/{cls.files[idx]}")
+
+        print(f"\nSelect \"{cls.origin_dir}/{cls.files[idx]}\"\n")
 
 
 ### Package info
@@ -33,7 +86,7 @@ class Cmd():
     CMD_WRITE_CRC = 0x05
     CMD_ERASE = 0x06
     CMD_UPLOAD = 0x07
-    CMD_CHECK_IMAGE_CRC = 0x08
+    CMD_IMAGE_CRC_VERIFY = 0x08
     CMD_SYSRST = 0x09
     CMD_EXIT_BLD = 0x0A
     CMD_NUM = 0x0A
@@ -94,12 +147,6 @@ def dl_bld_get_version(uart_port: serial.Serial) -> bytearray:
         - 1 length byte (value = 3)
         - 1 command byte (CMD_GET_BLD_VER)
         - 1 checksum byte
-
-    Args:
-        uart_port (serial.Serial): The UART port object used for communication.
-        
-    Returns:
-        bytearray: The response from the MCU containing the bootloader version.
     """
     # Prepare the transmit buffer
     tx_buf = dl_bld_prep_packet(length=4,
@@ -110,9 +157,9 @@ def dl_bld_get_version(uart_port: serial.Serial) -> bytearray:
 
     # Send the command over UART
     dl_uart_write(uart_port, tx_buf)
-
-    time.sleep(Def.WAIT_TIME)
-    return dl_uart_read_resp(uart_port)
+    # handle response
+    resp = dl_uart_read_resp(uart_port)
+    return resp if resp[0] else resp[0]
 
 
 # CMD 3: CHECK BLANKING
@@ -125,16 +172,13 @@ def dl_bld_blanking(uart_port: serial.Serial,
     
     Data sent includes:
         1b len, 1b cmd, 4b address, 4b size, 1b req_ack, 1b checksum
-        
-    Args:
-        uart_port (serial.Serial): The UART port object used for communication.
-        fl_adr (int/str): Start address of the memory range to be checked (int or hex string).
-        size (int/str): Size of data to be checked (int or hex string).
-        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
-
-    Returns:
-        bool: True if memory range is clean. False if it is dirty.
     """
+    # check connection first
+    if not dl_bld_get_version(uart_port):
+        print("Read BLD version failed, MCU might be out of bootloader")
+        return 0
+    # Connection confirmed, continue function
+
     packet_data = []
 
     if isinstance(fl_adr, str):
@@ -153,7 +197,6 @@ def dl_bld_blanking(uart_port: serial.Serial,
                                 req_ack=req_ack)
     dl_uart_write(uart_port, tx_buf)
 
-    time.sleep(Def.WAIT_TIME)
     # Handle response
     resp = dl_uart_read_resp(uart_port)
     return resp[0]
@@ -169,16 +212,13 @@ def dl_bld_write(uart_port: serial.Serial,
 
     Data sent includes:
         1b len, 1b cmd, 4b address, n data, 1b req_ack, 1b checksum
-
-    Args:
-        uart_port (serial.Serial): The UART port object used for communication.
-        fl_adr (int/str): Start address of the memory range to be written (int or hex string).
-        data (bytearray): Data to be written to the memory.
-        req_ack (int): Acknowledgment request flag (1 for ACK, 0 for no ACK).
-
-    Returns:
-        bytearray: The response from the MCU after the write operation.
     """
+    # check connection first
+    if not dl_bld_get_version(uart_port):
+        print("Read BLD version failed, MCU might be out of bootloader")
+        return 0
+    # Connection confirmed, continue function
+
     packet_data = []
 
     if isinstance(fl_adr, str):
@@ -232,6 +272,12 @@ def dl_bld_erase(uart_port: serial.Serial,
     Returns:
         bytearray: The response from the MCU after the erase operation.
     """
+    # check connection first
+    if not dl_bld_get_version(uart_port):
+        print("Read BLD version failed, MCU might be out of bootloader")
+        return 0
+    # Connection confirmed, continue function
+
     packet_data = []
 
     if isinstance(fl_adr, str):
@@ -262,10 +308,20 @@ def dl_bld_erase(uart_port: serial.Serial,
 #
 # CMD 6: UPLOADING
 #=====================================================================
-def dl_bld_upload_file(uart_port: serial.Serial, file_path: str):
-    if file_path.endswith(".hex"):
-        dl_bld_upload_hex_file(uart_port, file_path)
+def dl_bld_upload_file(uart_port: serial.Serial):
+    # check connection first
+    if not dl_bld_get_version(uart_port):
+        print("Read BLD version failed, MCU might be out of bootloader")
+        return 0
+    # Connection confirmed, continue function
 
+    # Select file
+    FileInfo.scan_files()
+    FileInfo.select_files()
+    # Upload the selected file
+    file_path = FileInfo.fpath
+    if file_path.endswith(".hex"):
+        return dl_bld_upload_hex_file(uart_port, file_path)
     elif file_path.endswith(".bin"):
         print("Uploading bin file")
     elif file_path.endswith(".elf"):
@@ -274,6 +330,7 @@ def dl_bld_upload_file(uart_port: serial.Serial, file_path: str):
     return 1
 
 
+@measure_exe_time
 @staticmethod
 def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
     image_info = ImageInfo()
@@ -323,7 +380,6 @@ def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
             dl_uart_write(uart_port, tx_buf)
 
             # Handle response
-
             resp = dl_uart_read_resp(uart_port)
             if num_of_attempt == 3:
                 print("Retry failed, abort")
@@ -336,10 +392,10 @@ def dl_bld_upload_hex_file(uart_port: serial.Serial, file_path: str):
     print("Uploading file: write flash image success")
 
     # 3. CRC check
-    dl_bld_check_img_crc(uart_port, start_addr, image_size,
-                         image_info.mem_buffer[:image_size])
-
-    return
+    if dl_bld_check_img_crc(uart_port, start_addr, image_size,
+                            image_info.mem_buffer[:image_size]):
+        return 1
+    return 0
 
 
 #
@@ -364,7 +420,6 @@ def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
     print(f"Check image crc: mem - {addr}, size - {size}, checking...")
 
     crc_result = crc32_lookup_tb(data)
-    print("Crc results: ", crc_result)
 
     packet_data = []
     packet_data.extend((addr >> (24 - i * 8)) & 0xFF for i in range(4))
@@ -372,7 +427,7 @@ def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
     packet_data.extend((crc_result >> (24 - i * 8)) & 0xFF for i in range(4))
 
     tx_buf = dl_bld_prep_packet(length=len(packet_data) + 4,
-                                cmd=Cmd.CMD_CHECK_IMAGE_CRC,
+                                cmd=Cmd.CMD_IMAGE_CRC_VERIFY,
                                 data=packet_data,
                                 csum=1,
                                 req_ack=1)
@@ -386,6 +441,7 @@ def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
         exit()
 
     print(f"Check image crc: CRC correct")
+    return resp[0]
 
 
 #
@@ -409,4 +465,5 @@ def dl_bld_exit(uart_port: serial.Serial):
     if not resp[0]:  # ACK return fail
         print("Debug here")
         exit()
-    print("Exit Bootloader: exit ready and started")
+
+    return resp[0]

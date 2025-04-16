@@ -6,8 +6,10 @@ from common.memory_map import *
 #
 # DEFINES AND VARIABLES
 #============================================================================
-class ImageInfo:
 
+
+
+class ImageInfo:
     def __init__(self,
                  flash_size=0x2000,
                  main_addr=0x0000,

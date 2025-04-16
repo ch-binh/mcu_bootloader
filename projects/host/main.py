@@ -20,12 +20,9 @@ gUart = None
 
 class SystemInfo:
     com_ports = []
-    hex_files = []
-
     target_com_port = ""
-    target_hex_file_addr = ""
+    
 
-    target_release_dir = "../../Release"
 
     #============================Selecting COM Ports================================#
     @classmethod
@@ -54,41 +51,7 @@ class SystemInfo:
         cls.target_com_port = cls.com_ports[idx].device
         print(f"\nSelect \"{cls.target_com_port}\"\n")
 
-    #============================Selecting Hex Files================================#
-    @classmethod
-    def scan_hex_files(cls):
-        """Scans for .hex files in the specified directory."""
 
-        print("=" * 40)
-        print("2. Listing all available hex files")
-        print("-" * 40 + "\n")
-        if not os.path.exists(cls.target_release_dir):
-            print(
-                f"Error: Directory '{cls.target_release_dir}' does not exist.")
-            return None
-
-        cls.hex_files = [
-            f for f in os.listdir(cls.target_release_dir) if f.endswith(".hex")
-        ]
-
-        if not cls.hex_files:
-            print("No .hex files found in", cls.target_release_dir)
-            return None
-
-        print(f"Found .hex files in \"{cls.target_release_dir}\":")
-        for idx, file in enumerate(cls.hex_files, start=0):
-            print(f"{idx}. {file}")
-
-    @classmethod
-    def input_set_hex_file(cls):
-        print("--- Select the hex file ---")
-        print("Instruction: type \"1\" to select hex file no.1")
-
-        idx = int(input("Input number: "))
-        cls.target_hex_file_addr = os.path.abspath(
-            f"{cls.target_release_dir}/{cls.hex_files[idx]}")
-
-        print(f"\nSelect \"{cls.target_release_dir}/{cls.hex_files[idx]}\"\n")
 
 
 #===========================================================================
@@ -101,9 +64,6 @@ def set_sys_info() -> None:
     SystemInfo.input_set_com_port()
     Uart.cfg_port(SystemInfo.target_com_port)
 
-    SystemInfo.scan_hex_files()
-    SystemInfo.input_set_hex_file()
-    Uart.cfg_file_addr(SystemInfo.target_hex_file_addr)
 
     gUart = dl_uart_init()
 
@@ -191,10 +151,12 @@ def cmd_erase(uart_port: serial.Serial):
 
 @staticmethod
 def cmd_upload_file(uart_port: serial.Serial):
-    if dl_bld_upload_file(uart_port, SystemInfo.target_hex_file_addr):
-        print("Uploading success")
+    
+        
+    if dl_bld_upload_file(uart_port):
+        print("Upload success")
     else:
-        print("Uploading failed")
+        print("Upload failed")
 
 
 @staticmethod
