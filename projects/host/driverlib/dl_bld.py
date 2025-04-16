@@ -12,6 +12,7 @@ from utils.measure import measure_exe_time
 # VARIABLES AND DEFINES
 #============================================================================
 
+
 class Cmd():
     """
     Contains the request commands
@@ -251,15 +252,18 @@ def dl_bld_upload(uart_port: serial.Serial):
     # Connection confirmed, continue function
 
     # Select file
-    FileInfo.scan_files()
+    FileInfo.scan_files(get_binf=True, get_hexf=True, get_elf=True)
     FileInfo.select_files()
     # Upload the selected file
-    file_path = FileInfo.fpath
-    if file_path.endswith(".hex"):
-        return dl_bld_upload_hexf(uart_port, file_path)
-    elif file_path.endswith(".bin"):
+    fpath = FileInfo.fpath
+    if fpath.endswith(".hex"):
+        return dl_bld_upload_hexf(uart_port, fpath)
+    elif fpath.endswith(".bin"):
+        start_addr = input("Input start address (ex: 0x1800 or 6144): ")
+        return dl_bld_upload_binf(uart_port, fpath, start_addr)
+
         print("Uploading bin file")
-    elif file_path.endswith(".elf"):
+    elif fpath.endswith(".elf"):
         print("Uploading elf file")
 
     return 1
@@ -268,16 +272,28 @@ def dl_bld_upload(uart_port: serial.Serial):
 @measure_exe_time
 @staticmethod
 def dl_bld_upload_hexf(uart_port: serial.Serial, file_path: str):
+    # upload image
     image_info = dl_hexf_readf(file_path)
     return dl_bld_upload_target_file(uart_port, image_info)
 
 
 @measure_exe_time
 @staticmethod
-def dl_bld_upload_binf(uart_port: serial.Serial, file_path: str):
-    image_info = dl_bin_readf(file_path)
-    return dl_bld_upload_target_file(uart_port, image_info)
+def dl_bld_upload_binf(uart_port: serial.Serial, file_path: str, start_addr):
+    # convert str to int
+    if isinstance(start_addr, str):
+        if start_addr.startswith("0x"):
+            start_addr = int(start_addr[2:], base=16)
+        else:
+            start_addr = int(start_addr, base=10)
     
+
+    # prepare upload image
+    image_info = dl_bin_readf(file_path, start_addr)
+
+    # upload image
+    return dl_bld_upload_target_file(uart_port, image_info)
+
 
 @staticmethod
 def dl_bld_upload_target_file(uart_port: serial.Serial, image_info: ImageInfo):
@@ -343,7 +359,6 @@ def dl_bld_upload_target_file(uart_port: serial.Serial, image_info: ImageInfo):
     pass
 
 
-
 #
 # CMD 7: CHECK CRC
 #=====================================================================
@@ -393,8 +408,6 @@ def dl_bld_check_img_crc(uart_port: serial.Serial, addr: int, size: int,
 #
 # CMD 9: EXIT BOOTLOADER
 #=====================================================================
-
-
 def dl_bld_exit(uart_port: serial.Serial):
 
     print("Exit Bootloader: exiting...")

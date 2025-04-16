@@ -2,6 +2,7 @@ import os
 
 from utils.measure import measure_exe_time
 
+
 class FileInfo:
     files = []
     fpath = ""
@@ -81,31 +82,20 @@ class ImageInfo:
 def dl_hexf_to_binf(fpath: str, ouputf_name: str = "app.bin") -> bool:
     from dl_hexf import dl_hexf_readf
     # Read hex file
-    __image_info = dl_hexf_readf(fpath)
-    mem_buffer = __image_info.mem_buffer
-    start_addr = __image_info.s_addr
-    end_addr = __image_info.e_addr
+    image = dl_hexf_readf(fpath)
+    mem_buffer = image.mem_buffer
+    image_size = image.e_addr - image.s_addr + 1
 
-    # Read
-    if start_addr > end_addr:
-        raise ValueError(
-            "Start address must be less than or equal to end address.")
-
-    if end_addr >= len(mem_buffer):
-        raise ValueError("End address exceeds memory buffer size.")
-
+    # Write bin file
     save_fpath = os.path.abspath(f"../../Release/{ouputf_name}")
-
-    sliced = mem_buffer[start_addr:end_addr + 1]
-
     try:
         with open(save_fpath, "wb") as f:
-            f.write(bytearray(sliced))
+            f.write(bytearray(mem_buffer[:image_size]))
 
         print(
-            f"Wrote {len(sliced)} bytes from 0x{start_addr:X} to 0x{end_addr:X} into {ouputf_name}"
+            f"Wrote {len(mem_buffer[:image_size])} bytes from 0x{image.s_addr:X} to 0x{image.e_addr :X} into {ouputf_name}"
         )
-    except:
+    except all:
         return False
 
     return True

@@ -15,7 +15,6 @@ from driverlib.dl_bld import *
 from common.memory_map import *
 
 
-
 #===========================================================================
 #                                 MAIN
 #===========================================================================
@@ -25,9 +24,11 @@ def uart_port_init() -> None:
     Uart.input_set_com_port()
     Uart.cfg_port(Uart.target_com_port)
     Uart.init()
-    
+
+
 def uart_port_deinit() -> None:
     Uart.deinit()
+
 
 def main() -> None:
     """Select a control command to execute."""
@@ -44,7 +45,7 @@ def main() -> None:
         ("Upload file", lambda: cmd_upload_file()),
         ("Check CRC", lambda: cmd_check_crc()),
         ("System reset", lambda: print("No Operation (NOP)")),
-        ("Exit Bootloader", lambda: cmd_hexf_to_binf()),
+        ("Exit Bootloader", lambda: cmd_exit_bld()),
         ("Convert hex file to bin file", lambda: cmd_hexf_to_binf()),
     ]
 
@@ -58,15 +59,12 @@ def main() -> None:
         exit()
     if choice.isdigit():
         idx = int(choice)
-        
-        uart_port_init()
+
         if 0 <= idx < len(cmd_tb):
             cmd_tb[idx][1]()  # Call the function
         else:
             print("Invalid choice.")
-        uart_port_deinit()
-        
-        
+
     else:
         print("Invalid input.")
 
@@ -78,20 +76,25 @@ def main() -> None:
 
 @staticmethod
 def cmd_get_bld_version_cb():
+    uart_port_init()
     print("Bootloader version is:", dl_bld_get_version(Uart.inst))
+    uart_port_deinit()
 
 
 @staticmethod
 def cmd_check_blanking_cb():
+    uart_port_init()
     addr = 0x1800
     size = 0x400
     print(f"Image from {addr} with size of {size}\
         is {'clean' if dl_bld_blanking(Uart.inst, addr, size, 1) else 'not blank'}"
           )
+    uart_port_deinit()
 
 
 @staticmethod
 def cmd_write():
+    uart_port_init()
     addr = 0x1800
     data = [
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C,
@@ -101,10 +104,12 @@ def cmd_write():
         print("Write success")
     else:
         print("Write failed")
+    uart_port_deinit()
 
 
 @staticmethod
 def cmd_erase():
+    uart_port_init()
     addr = 0x1800
     size = 0x400
     if dl_bld_erase(Uart.inst, addr, size, 1):
@@ -112,17 +117,23 @@ def cmd_erase():
     else:
         print("Erase failed")
 
+    uart_port_deinit()
+
 
 @staticmethod
 def cmd_upload_file():
+    uart_port_init()
     if dl_bld_upload(Uart.inst):
         print("Upload success")
     else:
         print("Upload failed")
 
+    uart_port_deinit()
+
 
 @staticmethod
 def cmd_check_crc():
+    uart_port_init()
     addr = 0x1800
     size = 0x400
     data = input("Input some data here: ")
@@ -131,13 +142,25 @@ def cmd_check_crc():
     else:
         print("CRC check failed")
 
+    uart_port_deinit()
+    
+@staticmethod
+def cmd_exit_bld():
+    uart_port_init()
+    if dl_bld_exit(Uart.inst):
+        print("Exit bootloader successed, entering application")
+    else:
+        print("Exit bootloader failed")
+    uart_port_deinit()
+
 
 #===========================================================================
 # UTILITIES COMMANDS FUCNTIONS
 #===========================================================================
 
+
 @staticmethod
-def cmd_hexf_to_binf(fname):
+def cmd_hexf_to_binf():
     # select hex file
     FileInfo.scan_files(get_hexf=True)
     FileInfo.select_files()

@@ -124,11 +124,11 @@ def dl_hexf_get_addr_boundary(image_buf: ImageInfo, file) -> bool:
 
 
 @staticmethod
-def dl_hexf_shadow_read(image_buf: ImageInfo, file) -> bool:
-    file.seek(0, 0)  # return cursor to start of line
+def dl_hexf_shadow_read(image_buf: ImageInfo, f) -> bool:
+    f.seek(0, 0)  # return cursor to start of line
 
     print("Shadowing hex file: reading file...")
-    for line in file:
+    for line in f:
         hex_line = dl_hexf_line_breakdown(line)
 
         # if indicating data, save start and end address
