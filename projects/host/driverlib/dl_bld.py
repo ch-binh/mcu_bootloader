@@ -1,8 +1,4 @@
-import time
-
 from dl_file import *
-from dl_hexf import dl_hexf_readf
-from dl_binf import dl_bin_readf
 from dl_uart import *
 from utils.checksum import *
 from utils.crc import crc32_lookup_tb
@@ -272,6 +268,7 @@ def dl_bld_upload(uart_port: serial.Serial):
 @measure_exe_time
 @staticmethod
 def dl_bld_upload_hexf(uart_port: serial.Serial, file_path: str):
+    from dl_hexf import dl_hexf_readf
     # upload image
     image_info = dl_hexf_readf(file_path)
     return dl_bld_upload_target_file(uart_port, image_info)
@@ -280,6 +277,7 @@ def dl_bld_upload_hexf(uart_port: serial.Serial, file_path: str):
 @measure_exe_time
 @staticmethod
 def dl_bld_upload_binf(uart_port: serial.Serial, file_path: str, start_addr):
+    from dl_binf import dl_bin_readf
     # convert str to int
     if isinstance(start_addr, str):
         if start_addr.startswith("0x"):
@@ -356,7 +354,6 @@ def dl_bld_upload_target_file(uart_port: serial.Serial, image_info: ImageInfo):
                             image_info.mem_buffer[:image_size]):
         return 1
     return 0
-    pass
 
 
 #
