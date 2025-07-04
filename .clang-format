@@ -1,0 +1,55 @@
+# Version: 1.0.1
+
+---
+BasedOnStyle: Microsoft
+Language:        Cpp
+
+# Indentation and Tabs
+IndentWidth:             2
+ContinuationIndentWidth: 2
+UseTab:                  Never
+IndentGotoLabels:        false
+
+# Column limits and wrapping
+ColumnLimit:                    110
+BreakBeforeBraces:              Custom
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
+AllowAllArgumentsOnNextLine:   false
+ReflowComments:                true
+
+# Braces wrapping rules
+BraceWrapping:
+  AfterCaseLabel:        true
+  AfterStruct:           true
+  AfterUnion:            true
+  AfterClass:            true
+  AfterFunction:         true
+  AfterControlStatement: true
+  BeforeElse:            true
+
+# Alignment rules
+AlignAfterOpenBracket: Align
+AlignOperands:          AlignAfterOperator
+AlignTrailingComments:  true
+AlignEscapedNewlines:   Left
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments:  true
+AlignConsecutiveBitFields:    true
+AlignConsecutiveMacros:
+  Enabled:           true
+  AcrossEmptyLines:  false
+  AcrossComments:    true
+
+# Pointer alignment
+DerivePointerAlignment: false
+PointerAlignment:       Right
+
+# Formatting and bin packing
+BinPackArguments:       true
+BinPackParameters:      true
+BitFieldColonSpacing:   None
+BreakBeforeBinaryOperators: None
+Cpp11BracedListStyle:   false
+SortIncludes:           false

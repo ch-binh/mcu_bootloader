@@ -1,0 +1,12 @@
+[
+   {
+      "directory" : "D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/Debug",
+      "command"   : "clang++ -D__MSPM0C1104__ -I\"D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang\" -I\"D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/Debug\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source/third_party/CMSIS/Core/Include\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/armv7em-ti-none-eabihf/c++/v1\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/c++/v1\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/lib/clang/18/include\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/c\"",
+      "file"      : "D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/uart_echo_interrupts_standby.c"
+   },
+   {
+      "directory" : "D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/Debug",
+      "command"   : "clang++ -D__MSPM0C1104__ -I\"D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang\" -I\"D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/Debug\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source/third_party/CMSIS/Core/Include\" -I\"C:/ti/mspm0_sdk_2_04_00_06/source\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/armv7em-ti-none-eabihf/c++/v1\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/c++/v1\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/lib/clang/18/include\" -isystem\"C:/ti/ccstheia151/ccs/tools/compiler/ti-cgt-armllvm_4.0.0.LTS/include/c\"",
+      "file"      : "D:/PersonalProjects/mspm0_bootloader/projects/uart_echo_interrupts_standby_LP_MSPM0C1104_nortos_ticlang/Debug/ti_msp_dl_config.c"
+   }
+]

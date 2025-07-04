@@ -1,0 +1,302 @@
+Archive member included to satisfy reference by file (symbol)
+
+C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                              ./ti_msp_dl_config.o (DL_Common_delayCycles)
+C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                              ./startup_mspm0c110x_gcc.o (__libc_init_array)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x00001800         0x00002000         xr
+SRAM             0x20000000         0x00000400         xrw
+BCR_CONFIG       0x41c00000         0x000000ff         r
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./ti_msp_dl_config.o
+LOAD ./startup_mspm0c110x_gcc.o
+LOAD ./src/application.o
+                0x00000000                _Min_Heap_Size = 0x0
+                0x00000080                _Min_Stack_Size = 0x80
+                0x00001800                PROVIDE (_intvecs_base_address = DEFINED (_intvecs_base_address)?_intvecs_base_address:0x1800)
+
+.intvecs        0x00001800       0xc0
+ *(.intvecs)
+ .intvecs       0x00001800       0xc0 ./startup_mspm0c110x_gcc.o
+                0x00001800                interruptVectors
+                0x20000000                PROVIDE (_vtable_base_address = DEFINED (_vtable_base_address)?_vtable_base_address:0x20000000)
+
+.vtable
+ *(.vtable)
+
+.text           0x000018c0      0x198
+ CREATE_OBJECT_SYMBOLS
+ *(.text)
+ .text          0x000018c0        0x0 ./ti_msp_dl_config.o
+ .text          0x000018c0        0x0 ./startup_mspm0c110x_gcc.o
+ .text          0x000018c0        0x0 ./src/application.o
+ .text          0x000018c0        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .text          0x000018c0        0x0 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                0x000018c0                . = ALIGN (0x8)
+ *(.text.*)
+ .text.SYSCFG_DL_initPower
+                0x000018c0       0x28 ./ti_msp_dl_config.o
+                0x000018c0                SYSCFG_DL_initPower
+ .text.SYSCFG_DL_GPIO_init
+                0x000018e8       0x28 ./ti_msp_dl_config.o
+                0x000018e8                SYSCFG_DL_GPIO_init
+ .text.SYSCFG_DL_SYSCTL_init
+                0x00001910       0x20 ./ti_msp_dl_config.o
+                0x00001910                SYSCFG_DL_SYSCTL_init
+ .text.SYSCFG_DL_init
+                0x00001930       0x10 ./ti_msp_dl_config.o
+                0x00001930                SYSCFG_DL_init
+ .text.Default_Handler
+                0x00001940        0x4 ./startup_mspm0c110x_gcc.o
+                0x00001940                TIMG8_IRQHandler
+                0x00001940                I2C0_IRQHandler
+                0x00001940                HardFault_Handler
+                0x00001940                GPIOA_IRQHandler
+                0x00001940                SysTick_Handler
+                0x00001940                PendSV_Handler
+                0x00001940                NMI_Handler
+                0x00001940                UART0_IRQHandler
+                0x00001940                ADC0_IRQHandler
+                0x00001940                GROUP0_IRQHandler
+                0x00001940                Default_Handler
+                0x00001940                TIMG14_IRQHandler
+                0x00001940                SVC_Handler
+                0x00001940                SPI0_IRQHandler
+                0x00001940                DMA_IRQHandler
+                0x00001940                TIMA0_IRQHandler
+ .text.Reset_Handler
+                0x00001944       0x8c ./startup_mspm0c110x_gcc.o
+                0x00001944                Reset_Handler
+ .text.initStub
+                0x000019d0        0x4 ./startup_mspm0c110x_gcc.o
+                0x000019d0                initStub
+                0x000019d0                _init
+ .text.startup.main
+                0x000019d4       0x30 ./src/application.o
+                0x000019d4                main
+ .text.DL_Common_delayCycles
+                0x00001a04        0xc C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                0x00001a04                DL_Common_delayCycles
+ .text.__libc_init_array
+                0x00001a10       0x44 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+                0x00001a10                __libc_init_array
+                0x00001a58                . = ALIGN (0x8)
+ *fill*         0x00001a54        0x4 
+ *(.ctors)
+                0x00001a58                . = ALIGN (0x8)
+ *(.dtors)
+                0x00001a58                . = ALIGN (0x8)
+ *(.init)
+                0x00001a58                . = ALIGN (0x8)
+ *(.fini*)
+                0x00001a58                . = ALIGN (0x8)
+
+.glue_7         0x00001a58        0x0
+ .glue_7        0x00001a58        0x0 linker stubs
+
+.glue_7t        0x00001a58        0x0
+ .glue_7t       0x00001a58        0x0 linker stubs
+
+.vfp11_veneer   0x00001a58        0x0
+ .vfp11_veneer  0x00001a58        0x0 linker stubs
+
+.v4_bx          0x00001a58        0x0
+ .v4_bx         0x00001a58        0x0 linker stubs
+
+.iplt           0x00001a58        0x0
+ .iplt          0x00001a58        0x0 ./ti_msp_dl_config.o
+
+.rel.dyn        0x00001a58        0x0
+ .rel.iplt      0x00001a58        0x0 ./ti_msp_dl_config.o
+
+.ramfunc        0x20000000        0x0 load address 0x00001a58
+                0x00001a58                __ramfunct_load__ = LOADADDR (.ramfunc)
+                0x20000000                __ramfunct_start__ = .
+ *(.ramfunc)
+                0x20000000                . = ALIGN (0x8)
+                0x20000000                __ramfunct_end__ = .
+
+.rodata         0x00001a58        0x0
+ *(.rodata)
+                0x00001a58                . = ALIGN (0x8)
+ *(.rodata.*)
+                0x00001a58                . = ALIGN (0x8)
+
+.preinit_array  0x00001a58        0x0
+                0x00001a58                PROVIDE (__preinit_array_start = .)
+ *(.preinit_array*)
+                0x00001a58                PROVIDE (__preinit_array_end = .)
+
+.init_array     0x00001a58        0x0
+                0x00001a58                . = ALIGN (0x8)
+                0x00001a58                PROVIDE (__init_array_start = .)
+ *(SORT_BY_NAME(.init_array.*))
+ *(.init_array*)
+                0x00001a58                PROVIDE (__init_array_end = .)
+
+.fini_array     0x00001a58        0x0
+                0x00001a58                . = ALIGN (0x8)
+                [!provide]                PROVIDE (__fini_array_start = .)
+ *(SORT_BY_NAME(.fini_array.*))
+ *(.fini_array*)
+                [!provide]                PROVIDE (__fini_array_end = .)
+                0x00001a58                . = ALIGN (0x8)
+
+.ARM.exidx      0x00001a58        0x0
+                0x00001a58                __exidx_start = .
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x00001a58                __exidx_end = .
+
+.ARM.extab      0x00001a58        0x0
+                0x00001a58                . = ALIGN (0x8)
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x00001a58                . = ALIGN (0x8)
+                0x00001a58                __etext = .
+
+.data           0x20000000        0x0 load address 0x00001a58
+                0x00001a58                __data_load__ = LOADADDR (.data)
+                0x20000000                __data_start__ = .
+ *(.data)
+ .data          0x20000000        0x0 ./ti_msp_dl_config.o
+ .data          0x20000000        0x0 ./startup_mspm0c110x_gcc.o
+ .data          0x20000000        0x0 ./src/application.o
+ .data          0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .data          0x20000000        0x0 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+ *(.data*)
+                0x20000000                . = ALIGN (0x8)
+                0x20000000                __data_end__ = .
+
+.igot.plt       0x20000000        0x0 load address 0x00001a58
+ .igot.plt      0x20000000        0x0 ./ti_msp_dl_config.o
+
+.bss            0x20000000        0x0
+                0x20000000                __bss_start__ = .
+ *(.shbss)
+ *(.bss)
+ .bss           0x20000000        0x0 ./ti_msp_dl_config.o
+ .bss           0x20000000        0x0 ./startup_mspm0c110x_gcc.o
+ .bss           0x20000000        0x0 ./src/application.o
+ .bss           0x20000000        0x0 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .bss           0x20000000        0x0 C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+ *(.bss.*)
+ *(COMMON)
+                0x20000000                . = ALIGN (0x8)
+                0x20000000                __bss_end__ = .
+
+.noinit         0x20000000        0x0
+ *(*.noinit*)
+                0x20000000                . = ALIGN (0x8)
+
+.heap           0x20000000        0x0
+                0x20000000                __heap_start__ = .
+                0x20000000                end = __heap_start__
+                0x20000000                _end = end
+                0x20000000                __end = end
+ *(.heap)
+                0x20000000                __heap_end__ = .
+                0x20000000                __HeapLimit = __heap_end__
+
+.stack          0x20000000        0x0
+                0x20000000                _stack = .
+ *(.stack)
+
+.BCRConfig
+ *(.BCRConfig)
+                0x20000400                __StackTop = (ORIGIN (REGION_STACK) + LENGTH (REGION_STACK))
+                [!provide]                PROVIDE (__stack = __StackTop)
+LOAD C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a
+LOAD c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libm.a
+START GROUP
+LOAD c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libg.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a
+END GROUP
+START GROUP
+LOAD c:/ti/gcc_arm_none_eabi_9_2_1/bin/../lib/gcc/arm-none-eabi/9.2.1/thumb/v6-m/nofp\libgcc.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a
+LOAD C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libnosys.a
+END GROUP
+OUTPUT(application.out elf32-littlearm)
+
+.debug_info     0x00000000     0xc2e9
+ .debug_info    0x00000000     0x453b ./ti_msp_dl_config.o
+ .debug_info    0x0000453b      0x1bc ./startup_mspm0c110x_gcc.o
+ .debug_info    0x000046f7     0x42a0 ./src/application.o
+ .debug_info    0x00008997     0x3952 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.debug_abbrev   0x00000000      0x721
+ .debug_abbrev  0x00000000      0x2dc ./ti_msp_dl_config.o
+ .debug_abbrev  0x000002dc       0xe7 ./startup_mspm0c110x_gcc.o
+ .debug_abbrev  0x000003c3      0x238 ./src/application.o
+ .debug_abbrev  0x000005fb      0x126 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.debug_aranges  0x00000000       0xa8
+ .debug_aranges
+                0x00000000       0x38 ./ti_msp_dl_config.o
+ .debug_aranges
+                0x00000038       0x30 ./startup_mspm0c110x_gcc.o
+ .debug_aranges
+                0x00000068       0x20 ./src/application.o
+ .debug_aranges
+                0x00000088       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.debug_ranges   0x00000000      0x118
+ .debug_ranges  0x00000000       0xa8 ./ti_msp_dl_config.o
+ .debug_ranges  0x000000a8       0x20 ./startup_mspm0c110x_gcc.o
+ .debug_ranges  0x000000c8       0x40 ./src/application.o
+ .debug_ranges  0x00000108       0x10 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.debug_line     0x00000000      0xe44
+ .debug_line    0x00000000      0x54c ./ti_msp_dl_config.o
+ .debug_line    0x0000054c      0x180 ./startup_mspm0c110x_gcc.o
+ .debug_line    0x000006cc      0x3c1 ./src/application.o
+ .debug_line    0x00000a8d      0x3b7 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.debug_str      0x00000000     0x1aa4
+ .debug_str     0x00000000     0x17cb ./ti_msp_dl_config.o
+                               0x18a7 (size before relaxing)
+ .debug_str     0x000017cb       0xf2 ./startup_mspm0c110x_gcc.o
+                                0x297 (size before relaxing)
+ .debug_str     0x000018bd       0x3d ./src/application.o
+                               0x160d (size before relaxing)
+ .debug_str     0x000018fa      0x1aa C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+                               0x1232 (size before relaxing)
+
+.comment        0x00000000       0x79
+ .comment       0x00000000       0x79 ./ti_msp_dl_config.o
+                                 0x7a (size before relaxing)
+ .comment       0x00000079       0x7a ./startup_mspm0c110x_gcc.o
+ .comment       0x00000079       0x7a ./src/application.o
+ .comment       0x00000079       0x7a C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+
+.ARM.attributes
+                0x00000000       0x2c
+ .ARM.attributes
+                0x00000000       0x2b ./ti_msp_dl_config.o
+ .ARM.attributes
+                0x0000002b       0x2b ./startup_mspm0c110x_gcc.o
+ .ARM.attributes
+                0x00000056       0x2b ./src/application.o
+ .ARM.attributes
+                0x00000081       0x2b C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .ARM.attributes
+                0x000000ac       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+
+.debug_frame    0x00000000      0x120
+ .debug_frame   0x00000000       0x60 ./ti_msp_dl_config.o
+ .debug_frame   0x00000060       0x48 ./startup_mspm0c110x_gcc.o
+ .debug_frame   0x000000a8       0x2c ./src/application.o
+ .debug_frame   0x000000d4       0x20 C:/ti/mspm0_sdk_2_04_00_06/source\ti/driverlib/lib/gcc/m0p/mspm0c110x/driverlib.a(dl_common.o)
+ .debug_frame   0x000000f4       0x2c C:/ti/gcc_arm_none_eabi_9_2_1/arm-none-eabi/lib/thumb/v6-m/nofp\libc.a(lib_a-init.o)
+
+.debug_loc      0x00000000       0x13
+ .debug_loc     0x00000000       0x13 ./startup_mspm0c110x_gcc.o

@@ -1,0 +1,3 @@
+[submodule "thirdparties/template"]
+	path = thirdparties/template
+	url = https://github.com/ch-binh/file_template.git

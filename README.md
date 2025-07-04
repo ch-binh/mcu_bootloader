@@ -1,3 +1,18 @@
+# Information
+
+| Version | Update Date |
+| ------- | ----------- |
+| 0.0.1   | 2025/07/03  |
+
+
+- [Information](#information)
+- [mspm0\_bootloader](#mspm0_bootloader)
+  - [PERIPHERALS](#peripherals)
+  - [HOW TO USE](#how-to-use)
+  - [Host CLI supported functions:](#host-cli-supported-functions)
+  - [](#)
+
+
 # mspm0_bootloader
 Lightweight bootloader for Ti MSPM0 MCUs through UART with python GUI
 
@@ -24,3 +39,4 @@ Host CLI supported functions:
 8. System reset
 9.  Exit Bootloader
 
+##
